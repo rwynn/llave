@@ -1,0 +1,39 @@
+html,
+body {
+    padding: 0px;
+    margin: 0px;
+    overflow-x: hidden;
+}
+body {
+    background-color: #e0e0e0;
+    font-family: 'Roboto', sans-serif;
+    overflow-x: hidden;
+}
+div#root {
+    padding: 0px;
+    margin: 0px;
+    position: absolute;
+    width: 100vw;
+    height: 100vh;
+}
+div#footer {
+    padding: 0px;
+    margin: 0px;
+    position: fixed;
+    bottom: 0px;
+    width: 100vw;
+    z-index: 999;
+}
+div#content {
+    margin: 80px 0px 0px 0px;
+    padding: 0px 0px 100px 0px;
+}
+div.inner {
+    margin: 0px auto;
+    padding: 0px 35px 0px 25px;
+}
+@media (min-width: 1000px) {
+    div.inner {
+        max-width: 85vw;
+    }
+}
