@@ -23,7 +23,7 @@ On macOS:
 
 On Windows and Linux:
 
-    electron/resources/app
+    electron/resources
     
 You are now ready to run llave.
 
