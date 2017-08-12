@@ -3,21 +3,19 @@
 llave is an [Electron](https://electron.atom.io/) based UI for the [Ironclad](https://github.com/dmulholland/ironclad) password manager. If you
 landed here but prefer to manage your passwords in the terminal, Ironclad is a good choice.
 
+<img src="https://raw.github.com/rwynn/llave/master/screens/entries.png"/>
+
 ### using llave
 
 You can install llave using the following procedure:
 
-* Download the latest release of ironclad for your platform from the [ironclad Releases](https://github.com/dmulholland/ironclad/releases) page.
+* Download and extract the latest llave `llave.zip` file from the [llave Releases](https://github.com/rwynn/llave/releases) page.
 
-* Add the ironclad binary to your PATH.  
+* Download and extract the latest Electron release for your platform from the [Electron Release](https://github.com/electron/electron/releases) page.
 
-* Download the latest llave app.esar file from the [llave Releases](https://github.com/rwynn/llave/releases) page.
+* Copy both the llave `app.esar` file and `app.esar.unpacked` folder from `llave.zip` to the following location:
 
-* Download the latest Electron release for your platform from the [Electron Release](https://github.com/electron/electron/releases) page.
-
-* Extract the Electron release to your filesystem.  Copy the llave app.esar file to the following location:
-
-On macOS:
+On macOS (you will need to right click Electron.app and `Show Package Contents`):
 
     electron/Electron.app/Contents/Resources
 
@@ -27,13 +25,11 @@ On Windows and Linux:
     
 You are now ready to run llave.
 
-You can do so by double clicking `electron` or `electron.exe`  from the electron folder.
+You can do so by double clicking `electron`, `Electron`, or `electron.exe` from the electron folder.
 
 ### developing llave
 
-* Follow the first 2 steps in using llave to install ironclad.
-
-* Clone the llave repository and install nodejs.
+* Git clone the llave repository and install nodejs.
 
 * Run `npm install` from the root llave folder.
 
@@ -47,21 +43,17 @@ Changes made to the react application will cause Webpack to rebuild llave.
 
 ### packaging llave
 
-* Follow the first 3 steps from developing llave.
+* Clone the llave repository and install nodejs.
 
-* Run `npm run package` to create an app.esar file in the build folder
+* Run `npm run package` to create an `app.esar` file and an `app.esar.unpacked` directory in the build folder
 
-* Follow the steps in using llave substituting your app.esar file for the one in step 3. 
+* Follow the steps in using llave substituting your own app.esar file and app.esar.unpacked folder for the ones in step 3. 
 
 ### llave design
 
 llave is primary a React app running in a renderer process in Electron.  For communicating with
-the password manager, the React app sends IPC calls to the main process.  The main process spawns
+the password manager, the React app sends IPC calls to the main process.  The main process executes
 the ironclad command with appropriate arguments and returns results to the renderer process.
-
-llave tries to offload as much as possible to the ironclad command.  Since ironclad is not packaged
-with llave but remains a separate binary, it is possible to update the password manager without any
-changes to llave itself.  
 
 llave is currently a desktop only password manager shell.  
 

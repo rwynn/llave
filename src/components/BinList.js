@@ -1,4 +1,5 @@
-import EntriesList from './EntriesList';
+import { EntriesList } from './EntriesList';
+import muiThemeable from 'material-ui/styles/muiThemeable';
 
 class BinList extends EntriesList {
     activeFilter(e) {
@@ -6,4 +7,4 @@ class BinList extends EntriesList {
     }
 }
 
-export default BinList;
+export default muiThemeable()(BinList);

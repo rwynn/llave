@@ -1,4 +1,5 @@
 import React, { Component, PureComponent } from 'react';
+import muiThemeable from 'material-ui/styles/muiThemeable';
 import Snackbar from 'material-ui/Snackbar';
 import { List, ListItem } from 'material-ui/List';
 import Infinite from 'react-infinite';
@@ -8,17 +9,10 @@ import IconMenu from 'material-ui/IconMenu';
 import MenuItem from 'material-ui/MenuItem';
 import Divider from 'material-ui/Divider';
 import MoreVertIcon from 'material-ui/svg-icons/navigation/more-vert';
-import { lightBlue800, grey400, transparent } from 'material-ui/styles/colors';
+import { grey400, transparent } from 'material-ui/styles/colors';
 import S from '../store/Store';
 import NotFound from './NotFound';
-
-const Letter = letter =>
-    <Avatar
-        color={lightBlue800}
-        backgroundColor={transparent}
-        style={{ left: 8 }}>
-        {letter}
-    </Avatar>;
+import Favicon from './Favicon';
 
 const { ipcRenderer } = window.require('electron');
 
@@ -28,7 +22,7 @@ const iconButtonElement = (
     </IconButton>
 );
 
-class EntriesList extends PureComponent {
+export class EntriesList extends PureComponent {
     state = {
         snackOpen: false,
         filter: 0,
@@ -70,10 +64,10 @@ class EntriesList extends PureComponent {
     }
 
     componentWillUnmount() {
-        S.off('set.entries', this.onEntries);
-        S.off('set.entries.filter', this.onFilter);
-        S.off('set.entries.query.filter', this.onQueryFilter);
-        S.off('set.entries.query.sort', this.onQuerySortPredicate);
+        S.removeListener('set.entries', this.onEntries);
+        S.removeListener('set.entries.filter', this.onFilter);
+        S.removeListener('set.entries.query.filter', this.onQueryFilter);
+        S.removeListener('set.entries.query.sort', this.onQuerySortPredicate);
     }
 
     onQuerySortPredicate(querySortPredicate) {
@@ -98,6 +92,28 @@ class EntriesList extends PureComponent {
         this.initComplete = true;
         this.setState({
             entries: entries
+        });
+    }
+
+    copyURL(e) {
+        const { url } = e,
+            label = 'URL';
+        ipcRenderer.send('clipboard', url);
+        ipcRenderer.once('clipboard-reply', (ev, ok) => {
+            this.setState({
+                snackOpen: true,
+                snackMessage: ok
+                    ? `${label} for ${e.title} sent to the clipboard`
+                    : `Failed to copy ${label} to clipboard`
+            });
+            if (ok) {
+                this.snackTimer = setTimeout(() => {
+                    this.setState({
+                        snackMessage:
+                            'The clipboard will be cleared in 10 seconds'
+                    });
+                }, 1500);
+            }
         });
     }
 
@@ -209,6 +225,21 @@ class EntriesList extends PureComponent {
         history.push(`/edit/${e.id}`);
     }
 
+    letter(l) {
+        const { props } = this,
+            { muiTheme } = props,
+            { palette } = muiTheme,
+            color = palette.primary1Color;
+        return (
+            <Avatar
+                color={color}
+                backgroundColor={transparent}
+                style={{ left: 8 }}>
+                {l}
+            </Avatar>
+        );
+    }
+
     entry(e) {
         const { querySortPredicate } = this.state;
         const hasPass = e.passwords.reduce((a, p) => {
@@ -216,7 +247,7 @@ class EntriesList extends PureComponent {
         }, false);
         const key = e.id.toString();
         const l = e.title.charAt(0).toUpperCase();
-        const letter = Letter(l);
+        const letter = this.letter(l);
         const rightIconMenu = e.active
             ? <IconMenu iconButtonElement={iconButtonElement}>
                   {e.username
@@ -227,6 +258,11 @@ class EntriesList extends PureComponent {
                   {hasPass
                       ? <MenuItem onTouchTap={this.copyPassword.bind(this, e)}>
                             Copy Password
+                        </MenuItem>
+                      : null}
+                  {e.url
+                      ? <MenuItem onTouchTap={this.copyURL.bind(this, e)}>
+                            Copy URL
                         </MenuItem>
                       : null}
                   <MenuItem onTouchTap={this.editEntry.bind(this, e)}>
@@ -251,6 +287,17 @@ class EntriesList extends PureComponent {
             this.letters.has = true;
             this.letters.seen[l] = true;
         }
+        const secondaryText = (
+            <div
+                style={{
+                    padding: '4px 0px',
+                    display: 'flex',
+                    'align-items': 'center'
+                }}>
+                <Favicon url={e.url} style={{ marginRight: '8px' }} />
+                {e.url}
+            </div>
+        );
         return (
             <div key={key}>
                 {divider}
@@ -260,7 +307,7 @@ class EntriesList extends PureComponent {
                     insetChildren={repeat}
                     rightIconButton={rightIconMenu}
                     primaryText={e.title}
-                    secondaryText={e.url}
+                    secondaryText={secondaryText}
                 />
             </div>
         );
@@ -272,8 +319,14 @@ class EntriesList extends PureComponent {
             return querySortPredicate(a, b);
         } else {
             const ta = a.title.toUpperCase(),
-                tb = b.title.toUpperCase();
-            return ta.localeCompare(tb);
+                tb = b.title.toUpperCase(),
+                tr = ta.localeCompare(tb);
+            if (tr === 0) {
+                const ua = a.url.toUpperCase(),
+                    ub = b.url.toUpperCase(),
+                    ur = ua.localeCompare(ub);
+                return ur;
+            }
         }
     }
 
@@ -322,8 +375,8 @@ class EntriesList extends PureComponent {
                 : <List>
                       <Infinite
                           useWindowAsScrollContainer
-                          containerHeight={72 * 10}
-                          elementHeight={72}>
+                          containerHeight={80 * 10}
+                          elementHeight={80}>
                           {entries}
                       </Infinite>
                   </List>;
@@ -343,4 +396,4 @@ class EntriesList extends PureComponent {
     }
 }
 
-export default EntriesList;
+export default muiThemeable()(EntriesList);

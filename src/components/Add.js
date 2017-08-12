@@ -1,4 +1,5 @@
 import React, { Component, PureComponent } from 'react';
+import muiThemeable from 'material-ui/styles/muiThemeable';
 import AppBar from 'material-ui/AppBar';
 import FlatButton from 'material-ui/FlatButton';
 import TextField from 'material-ui/TextField';
@@ -25,7 +26,7 @@ const descIcon = (
     </FontIcon>
 );
 
-class Add extends PureComponent {
+export class Add extends PureComponent {
     state = {
         showErrors: false,
         showPassword: false,
@@ -39,7 +40,7 @@ class Add extends PureComponent {
         email: '',
         password: '',
         tags: [],
-        addnote: 'n'
+        notes: ''
     };
 
     defaultSettings = {
@@ -58,7 +59,6 @@ class Add extends PureComponent {
     };
 
     titleButtonStyle = {
-        color: '#fff',
         left: '20px',
         margin: '15px 0px 0px 0px'
     };
@@ -66,6 +66,9 @@ class Add extends PureComponent {
     constructor(props) {
         super(props);
         const setFavorite = S.get('entries.filter', -1) === 1;
+        Object.assign(this.titleButtonStyle, {
+            color: props.muiTheme.palette.alternateTextColor
+        });
         this.settings = Object.assign(
             {},
             this.defaultSettings,
@@ -199,7 +202,10 @@ class Add extends PureComponent {
         fields[3] = entry.email;
         fields[4] = entry.password;
         fields[5] = entry.tags.join(',');
-        fields[6] = entry.addnote;
+        fields[6] = entry.notes ? 'y' : 'n';
+        if (entry.notes) {
+            fields.push(entry.notes);
+        }
         return fields;
     }
 
@@ -232,10 +238,13 @@ class Add extends PureComponent {
         });
     }
 
-    makeField(prop, required) {
+    makeField(prop, required, multi) {
         const { showErrors, showPassword } = this.state,
             entry = this.entry,
             value = entry[prop],
+            multiLine = multi === true,
+            rows = multiLine ? 5 : 1,
+            onKeyPress = multiLine ? null : this.handlePress,
             label =
                 prop === 'url'
                     ? prop.toUpperCase()
@@ -246,13 +255,15 @@ class Add extends PureComponent {
                     : prop === 'email' ? 'email' : 'text';
         let errorText = null;
         if (showErrors && required && value === '') {
-            errorText = 'This field is required';
+            errorText = `${label} is required`;
         }
         return (
             <TextField
                 ref={prop}
+                multiLine={multiLine}
+                rows={rows}
                 errorText={errorText}
-                onKeyPress={this.handlePress}
+                onKeyPress={onKeyPress}
                 onChange={this.handleChange}
                 name={prop}
                 type={type}
@@ -273,7 +284,9 @@ class Add extends PureComponent {
     handleSave() {
         const { history } = this.props;
         if (this.submitOk()) {
-            ipcRenderer.send('ironclad', ['add'], { input: this.getInput() });
+            ipcRenderer.send('ironclad', ['add', '--no-editor'], {
+                input: this.getInput()
+            });
             ipcRenderer.once('ironclad-reply', (e, payload) => {
                 const cmd = payload.cmd,
                     code = payload.code;
@@ -374,6 +387,8 @@ class Add extends PureComponent {
                                 onToggle={this.toggleFavorite}
                             />
                             <br />
+                            {this.makeField('notes', false, true)}
+                            <br />
                         </CardText>
                     </Card>
                     <br />
@@ -388,4 +403,4 @@ class Add extends PureComponent {
     }
 }
 
-export default Add;
+export default muiThemeable()(Add);

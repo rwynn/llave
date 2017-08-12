@@ -28,7 +28,7 @@ class BottomNav extends Component {
     }
 
     componentWillUnmount() {
-        S.off('set.settings.close', this.onCloseSettings);
+        S.removeListener('set.settings.close', this.onCloseSettings);
     }
 
     componentWillReceiveProps(nextProps) {

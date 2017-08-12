@@ -10,7 +10,22 @@ const electron = require('electron'),
     storage = require('electron-storage'),
     yaStorage = require('ya-storage'),
     Joi = require('joi'),
-    { spawn } = require('child_process');
+    path = require('path'),
+    { execFile } = require('child_process');
+
+const ironcladPlatformBinary = {
+    win32: 'win/ironclad.exe',
+    win64: 'win/ironclad.exe',
+    darwin: 'darwin/ironclad',
+    linux: 'linux/ironclad'
+};
+
+const ironcladBinary = path.join(
+    __dirname.replace('app.asar', 'app.asar.unpacked'),
+    'go',
+    'ironclad',
+    ironcladPlatformBinary[process.platform]
+);
 
 let masterKey, clipTimeout, index;
 
@@ -22,6 +37,9 @@ const settingsSchema = Joi.object().keys({
     autoLock: Joi.object().keys({
         enabled: Joi.boolean(),
         timeout: Joi.number().integer().min(1)
+    }),
+    theme: Joi.object().keys({
+        dark: Joi.boolean()
     })
 });
 
@@ -44,12 +62,12 @@ const indexDocs = function() {
         this.field('url');
         this.field('username');
         this.field('email');
+        this.field('notes');
         data
             .map(d => {
                 const indexed = Object.assign({}, d);
                 indexed.active = null;
                 indexed.passwords = null;
-                indexed.notes = null;
                 return indexed;
             })
             .forEach(this.add, this);
@@ -101,7 +119,7 @@ const reviver = function(key, value) {
     return value;
 };
 
-const textResponse = ['config', 'user', 'pass', 'gen', 'list'];
+const textResponse = ['--version', 'config', 'user', 'pass', 'gen', 'list'];
 const jsonResponse = ['dump', 'export'];
 const maskSensitive = ['dump'];
 
@@ -143,7 +161,7 @@ const run = function(args, options, cb) {
         },
         input = opts.input,
         inputStream = new Readable(),
-        ironclad = spawn('ironclad', args);
+        ironclad = execFile(ironcladBinary, args);
     let inputDone = false;
     if (opts.hasOwnProperty('pw')) {
         masterKey = opts['pw'] || '';
@@ -151,15 +169,15 @@ const run = function(args, options, cb) {
     ironclad.on('error', function(err) {
         if (err.code && err.code === 'ENOENT') {
             dialog.showErrorBox(
-                'Spawn Error',
-                'Unable to run ironclad.  Is it installed and in your path?'
+                'Exec Error',
+                `Unable to run ironclad.  Is it installed at ${ironcladBinary}?`
             );
             state.cancelled = true;
             const { app } = electron;
             app.exit(1);
         } else {
             dialog.showErrorBox(
-                'Spawn Error',
+                'Exec Error',
                 'An error occurred while running the ironclad command'
             );
         }

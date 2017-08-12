@@ -2,6 +2,7 @@ import React, { Component, PureComponent } from 'react';
 import AppBar from 'material-ui/AppBar';
 import { Card, CardActions, CardHeader, CardText } from 'material-ui/Card';
 import DatabaseForm from './DatabaseForm';
+import PoweredBy from './PoweredBy';
 
 class Database extends PureComponent {
     render() {
@@ -19,6 +20,9 @@ class Database extends PureComponent {
                             <DatabaseForm history={this.props.history} />
                         </CardText>
                     </Card>
+                    <div style={{ textAlign: 'center', margin: '20px 0px' }}>
+                        <PoweredBy />
+                    </div>
                 </div>
             </div>
         );

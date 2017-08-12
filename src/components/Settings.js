@@ -1,4 +1,5 @@
 import React, { Component, PureComponent } from 'react';
+import muiThemeable from 'material-ui/styles/muiThemeable';
 import Chip from 'material-ui/Chip';
 import AppBar from 'material-ui/AppBar';
 import FontIcon from 'material-ui/FontIcon';
@@ -45,6 +46,14 @@ const timerIcon = (
         timer
     </FontIcon>
 );
+const themeIcon = (
+    <FontIcon
+        color={grey500}
+        style={{ fontSize: '36px' }}
+        className="material-icons">
+        palette
+    </FontIcon>
+);
 
 class Settings extends PureComponent {
     state = {
@@ -61,6 +70,10 @@ class Settings extends PureComponent {
         timeout: 5
     };
 
+    defaultTheme = {
+        dark: false
+    };
+
     sliderStyle = {
         maxWidth: '400px',
         margin: '0px 0px 0px 15px'
@@ -72,8 +85,7 @@ class Settings extends PureComponent {
 
     exampleStyle = {
         marginLeft: '15px',
-        borderRadius: '5px',
-        backgroundColor: grey300
+        borderRadius: '5px'
     };
 
     cardHeaderStyle = {
@@ -85,20 +97,24 @@ class Settings extends PureComponent {
     };
 
     subheaderStyle = {
-        color: 'rgba(0, 0, 0, 0.870588)',
         fontSize: '16px',
         lineHeight: '1',
         marginBottom: '12px'
     };
 
     titleButtonStyle = {
-        color: '#fff',
         left: '20px',
         margin: '15px 0px 0px 0px'
     };
 
     constructor(props) {
         super(props);
+        Object.assign(this.titleButtonStyle, {
+            color: props.muiTheme.palette.alternateTextColor
+        });
+        Object.assign(this.subheaderStyle, {
+            color: props.muiTheme.palette.primaryTextColor
+        });
         this.passwords = Object.assign(
             {},
             this.defaultPasswords,
@@ -109,6 +125,16 @@ class Settings extends PureComponent {
             this.defaultAutoLock,
             S.get('settings.autolock', this.defaultAutoLock)
         );
+        this.theme = Object.assign(
+            {},
+            this.defaultTheme,
+            S.get('settings.theme', this.defaultTheme, true)
+        );
+        this.initialSettings = {
+            passwords: Object.assign({}, this.passwords),
+            autoLock: Object.assign({}, this.autoLock),
+            theme: Object.assign({}, this.theme)
+        };
         this.sliderChange = this.sliderChange.bind(this);
         this.onIdleTimeout = this.onIdleTimeout.bind(this);
         this.onGen = this.onGen.bind(this);
@@ -116,8 +142,10 @@ class Settings extends PureComponent {
         this.onStorageSet = this.onStorageSet.bind(this);
         this.handleSave = this.handleSave.bind(this);
         this.handleClose = this.handleClose.bind(this);
+        this.confirmClose = this.confirmClose.bind(this);
         this.handleMenu = this.handleMenu.bind(this);
         this.toggleAutolock = this.toggleAutolock.bind(this);
+        this.toggleDarkTheme = this.toggleDarkTheme.bind(this);
     }
 
     onGen(e, payload) {
@@ -147,8 +175,7 @@ class Settings extends PureComponent {
     onStorageGet(e, reply) {
         const { code, err, data } = reply;
         if (code === 0) {
-            this.storage = data;
-            const { passwords, autoLock } = data;
+            const { passwords, autoLock, theme } = data;
             if (passwords) {
                 this.passwords = Object.assign(
                     {},
@@ -165,6 +192,15 @@ class Settings extends PureComponent {
                 );
                 S.set('settings.autolock', this.autoLock);
             }
+            if (theme) {
+                this.theme = Object.assign({}, this.defaultTheme, theme);
+                S.set('settings.theme', this.theme, true);
+            }
+            this.initialSettings = {
+                passwords: Object.assign({}, this.passwords),
+                autoLock: Object.assign({}, this.autoLock),
+                theme: Object.assign({}, this.theme)
+            };
         }
         this.regen();
     }
@@ -172,9 +208,10 @@ class Settings extends PureComponent {
     onStorageSet(e, reply) {
         const { code, err, data } = reply;
         if (code === 0) {
-            const { passwords, autoLock } = data;
+            const { passwords, autoLock, theme } = data;
             S.set('settings.passwords', passwords);
             S.set('settings.autolock', autoLock);
+            S.set('settings.theme', theme, true);
             this.handleClose();
             S.set('snack.message', 'Settings saved');
         } else {
@@ -232,6 +269,19 @@ class Settings extends PureComponent {
         return <Toggle onToggle={this.toggleFlag.bind(this, f)} toggled={on} />;
     }
 
+    toggleDarkTheme(e, on) {
+        const { theme } = this;
+        theme.dark = on;
+        this.setState({
+            darkTheme: on
+        });
+    }
+
+    darkThemeToggle() {
+        const { dark } = this.theme;
+        return <Toggle onToggle={this.toggleDarkTheme} toggled={dark} />;
+    }
+
     toggleAutolock(e, on) {
         const { autoLock } = this;
         autoLock.enabled = on;
@@ -251,11 +301,33 @@ class Settings extends PureComponent {
         S.set('settings.close', true);
     }
 
+    confirmClose() {
+        const initial = JSON.stringify(this.initialSettings),
+            settings = JSON.stringify({
+                passwords: this.passwords,
+                autoLock: this.autoLock,
+                theme: this.theme
+            });
+        if (initial !== settings) {
+            S.send('dialog', {
+                title: 'Unsaved Changes',
+                message:
+                    'You have unsaved changes. Would you like to save them?',
+                leftLabel: 'Discard',
+                rightLabel: 'Save',
+                onRightLabel: this.handleSave,
+                onLeftLabel: this.handleClose
+            });
+        } else {
+            this.handleClose();
+        }
+    }
+
     barChildren() {
         return [
             <FlatButton
                 key="close"
-                onTouchTap={this.handleClose}
+                onTouchTap={this.confirmClose}
                 icon={closeIcon}
                 style={this.titleButtonStyle}
                 label="Close"
@@ -268,26 +340,11 @@ class Settings extends PureComponent {
     }
 
     handleSave() {
-        let data = this.storage;
-        if (data) {
-            const { passwords, autoLock } = data;
-            if (autoLock) {
-                Object.assign(autoLock, this.autoLock);
-            } else {
-                data.autoLock = Object.assign({}, this.autoLock);
-            }
-            if (passwords) {
-                Object.assign(passwords, this.passwords);
-            } else {
-                data.passwords = Object.assign({}, this.passwords);
-            }
-        } else {
-            data = {
-                autoLock: Object.assign({}, this.autoLock),
-                passwords: Object.assign({}, this.passwords)
-            };
-        }
-        ipcRenderer.send('store-set', data);
+        ipcRenderer.send('store-set', {
+            passwords: this.passwords,
+            autoLock: this.autoLock,
+            theme: this.theme
+        });
     }
 
     render() {
@@ -295,7 +352,8 @@ class Settings extends PureComponent {
         const timeout = autoLock.enabled
             ? <div>
                   <Subheader style={this.subheaderStyle}>
-                      Inactivity Timeout ({autoLock.timeout} minutes)
+                      Inactivity Timeout ({autoLock.timeout}{' '}
+                      {autoLock.timeout === 1 ? 'minute' : 'minutes'})
                   </Subheader>
                   <Slider
                       onChange={this.onIdleTimeout}
@@ -325,6 +383,26 @@ class Settings extends PureComponent {
                     }
                 />
                 <div className="inner">
+                    <br />
+                    <Card initiallyExpanded={true}>
+                        <CardHeader
+                            avatar={themeIcon}
+                            title="Theme Settings"
+                            style={this.cardHeaderStyle}
+                            subtitle="Configure the appearance of the interface"
+                            actAsExpander={false}
+                            showExpandableButton={false}
+                        />
+                        <CardText style={this.cardTextStyle} expandable={false}>
+                            <List>
+                                <ListItem
+                                    primaryText="Dark Theme"
+                                    secondaryText="Use a dark theme"
+                                    rightToggle={this.darkThemeToggle()}
+                                />
+                            </List>
+                        </CardText>
+                    </Card>
                     <br />
                     <Card initiallyExpanded={true}>
                         <CardHeader
@@ -397,4 +475,4 @@ class Settings extends PureComponent {
     }
 }
 
-export default Settings;
+export default muiThemeable()(Settings);

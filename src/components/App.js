@@ -1,10 +1,18 @@
 import '../assets/stylesheets/base.scss';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
+import darkBaseTheme from 'material-ui/styles/baseThemes/darkBaseTheme';
 import getMuiTheme from 'material-ui/styles/getMuiTheme';
-import { lightBlue800, lightBlue900 } from 'material-ui/styles/colors';
+import {
+    lightBlue300,
+    lightBlue400,
+    lightBlue800,
+    lightBlue900
+} from 'material-ui/styles/colors';
 import React, { Component, PureComponent } from 'react';
 import BottomNav from './BottomNav';
 import MainMenu from './MainMenu';
+import MainBar from './MainBar';
+import MainDialog from './MainDialog';
 import Add from './Add';
 import Details from './Details';
 import Edit from './Edit';
@@ -17,16 +25,11 @@ import { HashRouter as Router, Route, Link } from 'react-router-dom';
 
 const { ipcRenderer } = window.require('electron');
 
-const muiTheme = getMuiTheme({
-    fontFamily: 'Lato, sans-serif',
-    palette: {
-        primary1Color: lightBlue800,
-        primary2Color: lightBlue900,
-        pickerHeaderColor: lightBlue800
-    }
-});
-
 class App extends PureComponent {
+    state = {
+        darkTheme: false
+    };
+
     defaultAutoLock = {
         enabled: true,
         timeout: 5
@@ -34,7 +37,12 @@ class App extends PureComponent {
 
     constructor(props) {
         super(props);
+        const theme = S.get('settings.theme', null, true);
+        if (theme) {
+            this.state.darkTheme = theme.dark === true;
+        }
         this.autoLockChanged = this.autoLockChanged.bind(this);
+        this.themeChanged = this.themeChanged.bind(this);
         this.updateTimer = this.updateTimer.bind(this);
         this.lockDatabase = this.lockDatabase.bind(this);
         this.autoLock = Object.assign({}, this.defaultAutoLock);
@@ -45,6 +53,7 @@ class App extends PureComponent {
 
     componentDidMount() {
         S.on('set.settings.autolock', this.autoLockChanged);
+        S.on('set.settings.theme', this.themeChanged);
         ipcRenderer.on('store-get-reply', this.onStorageGet);
         ipcRenderer.on('ironclad-reply', this.respond);
         ipcRenderer.on('search-reply', this.doSearch);
@@ -53,10 +62,45 @@ class App extends PureComponent {
     }
 
     componentWillUnmount() {
-        S.off('set.settings.autolock', this.autoLockChanged);
+        S.removeListener('set.settings.autolock', this.autoLockChanged);
+        S.removeListener('set.settings.theme', this.themeChanged);
         ipcRenderer.removeListener('store-get-reply', this.onStorageGet);
         ipcRenderer.removeListener('ironclad-reply', this.respond);
         ipcRenderer.removeListener('search-reply', this.doSearch);
+    }
+
+    themeChanged(theme) {
+        const op = theme.dark ? 'add' : 'remove';
+        document.body.classList[op]('dark');
+        this.setState({
+            darkTheme: theme.dark
+        });
+    }
+
+    theme() {
+        const { darkTheme } = this.state,
+            settings = {};
+        if (darkTheme) {
+            Object.assign(settings, darkBaseTheme);
+            Object.assign(settings.palette, {
+                primary1Color: lightBlue300,
+                primary2Color: lightBlue400,
+                pickerHeaderColor: lightBlue400
+            });
+        } else {
+            Object.assign(settings, {
+                palette: {
+                    primary1Color: lightBlue800,
+                    primary2Color: lightBlue900,
+                    pickerHeaderColor: lightBlue800
+                }
+            });
+        }
+        Object.assign(settings, {
+            fontFamily: 'Lato, sans-serif'
+        });
+        const muiTheme = getMuiTheme(settings);
+        return muiTheme;
     }
 
     lockDatabase() {
@@ -85,8 +129,9 @@ class App extends PureComponent {
     onStorageGet(e, reply) {
         const { code, err, data } = reply;
         if (code === 0) {
-            const { autoLock } = data;
+            const { autoLock, theme } = data;
             if (autoLock) {
+                S.set('settings.autolock', autoLock);
                 this.autoLock = Object.assign(
                     {},
                     this.defaultAutoLock,
@@ -94,6 +139,9 @@ class App extends PureComponent {
                 );
             } else {
                 this.autoLock = Object.assign({}, this.defaultAutoLock);
+            }
+            if (theme) {
+                S.set('settings.theme', theme, true);
             }
         } else {
             this.autoLock = Object.assign({}, this.defaultAutoLock);
@@ -165,12 +213,14 @@ class App extends PureComponent {
 
     render() {
         return (
-            <MuiThemeProvider muiTheme={muiTheme}>
+            <MuiThemeProvider muiTheme={this.theme()}>
                 <Router>
                     <div
                         onKeyPress={this.updateTimer}
                         onMouseMove={this.updateTimer}>
                         <Route component={MainMenu} />
+                        <Route component={MainBar} />
+                        <Route component={MainDialog} />
                         <div id="content">
                             <Route exact path="/" component={Database} />
                             <Route exact path="/entries" component={Entries} />

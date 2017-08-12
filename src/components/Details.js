@@ -1,4 +1,5 @@
 import React, { Component, PureComponent } from 'react';
+import muiThemeable from 'material-ui/styles/muiThemeable';
 import AppBar from 'material-ui/AppBar';
 import Snackbar from 'material-ui/Snackbar';
 import FlatButton from 'material-ui/FlatButton';
@@ -10,6 +11,7 @@ import { grey500, transparent } from 'material-ui/styles/colors';
 import { List, ListItem } from 'material-ui/List';
 import { Card, CardActions, CardHeader, CardText } from 'material-ui/Card';
 import Tags from './Tags';
+import Favicon from './Favicon';
 import S from '../store/Store';
 
 const closeIcon = (
@@ -25,16 +27,6 @@ const deleteIcon = (
 const editIcon = (
     <FontIcon style={{ fontSize: '18px' }} className="material-icons">
         mode_edit
-    </FontIcon>
-);
-const showIcon = (
-    <FontIcon color={grey500} className="material-icons">
-        visibility
-    </FontIcon>
-);
-const hideIcon = (
-    <FontIcon color={grey500} className="material-icons">
-        visibility_off
     </FontIcon>
 );
 const descIcon = (
@@ -55,6 +47,7 @@ class Details extends PureComponent {
         username: '',
         email: '',
         password: '',
+        notes: '',
         tags: [],
         showPassword: false,
         showUser: false,
@@ -71,13 +64,15 @@ class Details extends PureComponent {
     };
 
     titleButtonStyle = {
-        color: '#fff',
         left: '20px',
         margin: '15px 0px 0px 0px'
     };
 
     constructor(props) {
         super(props);
+        Object.assign(this.titleButtonStyle, {
+            color: props.muiTheme.palette.alternateTextColor
+        });
         const entries = S.get('entries', []),
             { match } = this.props,
             { id } = match.params;
@@ -220,6 +215,18 @@ class Details extends PureComponent {
         let val = this.state[prop];
         let rightIconButton = null,
             rightIcon = null;
+        const secondaryTextColor = this.props.muiTheme.palette
+            .secondaryTextColor;
+        const showIcon = (
+            <FontIcon color={secondaryTextColor} className="material-icons">
+                visibility
+            </FontIcon>
+        );
+        const hideIcon = (
+            <FontIcon color={secondaryTextColor} className="material-icons">
+                visibility_off
+            </FontIcon>
+        );
         const label =
             prop === 'url'
                 ? prop.toUpperCase()
@@ -231,9 +238,9 @@ class Details extends PureComponent {
                 rightIconButton = (
                     <FlatButton
                         icon={rightIcon}
+                        style={{ width: '110px' }}
+                        labelStyle={{ color: secondaryTextColor }}
                         label={showPassword ? 'Hide' : 'Show'}
-                        labelStyle={{ color: grey500 }}
-                        hoverColor="#fff"
                         onTouchTap={this.togglePassword}
                     />
                 );
@@ -243,9 +250,9 @@ class Details extends PureComponent {
                 rightIconButton = (
                     <FlatButton
                         icon={rightIcon}
+                        style={{ width: '110px' }}
+                        labelStyle={{ color: secondaryTextColor }}
                         label={showUser ? 'Hide' : 'Show'}
-                        labelStyle={{ color: grey500 }}
-                        hoverColor="#fff"
                         onTouchTap={this.toggleUser}
                     />
                 );
@@ -253,6 +260,7 @@ class Details extends PureComponent {
         }
         return (
             <ListItem
+                style={{ cursor: 'copy' }}
                 onTouchTap={this.clip.bind(this, prop, label)}
                 primaryText={val}
                 secondaryText={label}
@@ -319,6 +327,16 @@ class Details extends PureComponent {
         ];
     }
 
+    headerSubtitle() {
+        const { url } = this.state;
+        return (
+            <div style={{ display: 'flex', 'align-items': 'center' }}>
+                <Favicon url={url} style={{ marginRight: '8px' }} />
+                {url}
+            </div>
+        );
+    }
+
     render() {
         return (
             <div>
@@ -343,7 +361,7 @@ class Details extends PureComponent {
                             avatar={descIcon}
                             title={this.state.title}
                             style={this.cardHeaderStyle}
-                            subtitle={this.state.url}
+                            subtitle={this.headerSubtitle()}
                             actAsExpander={false}
                             showExpandableButton={false}
                         />
@@ -354,6 +372,7 @@ class Details extends PureComponent {
                                 {this.makeField('username')}
                                 {this.makeField('email')}
                                 {this.makeField('password')}
+                                {this.makeField('notes')}
                                 <Tags readonly={true} tags={this.state.tags} />
                             </List>
                         </CardText>
@@ -371,4 +390,4 @@ class Details extends PureComponent {
     }
 }
 
-export default Details;
+export default muiThemeable()(Details);

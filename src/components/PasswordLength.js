@@ -1,4 +1,5 @@
 import React, { Component, PureComponent } from 'react';
+import muiThemeable from 'material-ui/styles/muiThemeable';
 import Subheader from 'material-ui/Subheader';
 import Slider from 'material-ui/Slider';
 import S from '../store/Store';
@@ -14,7 +15,6 @@ class PasswordLength extends PureComponent {
     };
 
     subheaderStyle = {
-        color: 'rgba(0, 0, 0, 0.870588)',
         fontSize: '16px',
         lineHeight: '1',
         marginBottom: '12px',
@@ -23,6 +23,9 @@ class PasswordLength extends PureComponent {
 
     constructor(props) {
         super(props);
+        Object.assign(this.subheaderStyle, {
+            color: props.muiTheme.palette.primaryTextColor
+        });
         this.onChange = this.onChange.bind(this);
         this.state.len = props.len;
     }
@@ -64,4 +67,4 @@ class PasswordLength extends PureComponent {
     }
 }
 
-export default PasswordLength;
+export default muiThemeable()(PasswordLength);

@@ -3,12 +3,8 @@ var gulp = require('gulp'),
     del = require('del');
 
 var paths = {
-    main: [
-        "package.prod.json", "main.js", "ipc.js"
-    ],
-    render: [
-        "dist/bundle.js", "dist/index.prod.html"
-    ]
+    main: ['package.prod.json', 'main.js', 'ipc.js', 'go/**/ironclad*'],
+    render: ['dist/bundle.js', 'dist/index.prod.html']
 };
 
 var renamed = {
@@ -24,19 +20,21 @@ var maybeRename = function(path) {
 };
 
 gulp.task('clean', function() {
-    return del(['build/*']);
+    return del(['build/*', 'dist/bundle.js']);
 });
 
 gulp.task('main', ['clean'], function() {
-    return gulp.src(paths.main)
-      .pipe(rename(maybeRename))
-      .pipe(gulp.dest('build/app')); 
+    return gulp
+        .src(paths.main, { base: '.' })
+        .pipe(rename(maybeRename))
+        .pipe(gulp.dest('build/app'));
 });
 
 gulp.task('render', ['clean'], function() {
-    return gulp.src(paths.render)
-      .pipe(rename(maybeRename))
-      .pipe(gulp.dest('build/app/dist')); 
+    return gulp
+        .src(paths.render, { base: '.' })
+        .pipe(rename(maybeRename))
+        .pipe(gulp.dest('build/app'));
 });
 
 gulp.task('postclean', function() {

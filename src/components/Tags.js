@@ -3,7 +3,7 @@ import TextField from 'material-ui/TextField';
 import Chip from 'material-ui/Chip';
 import Subheader from 'material-ui/Subheader';
 import FontIcon from 'material-ui/FontIcon';
-import { grey50, grey500, transparent } from 'material-ui/styles/colors';
+import { grey500, transparent } from 'material-ui/styles/colors';
 import { Card, CardActions, CardHeader, CardText } from 'material-ui/Card';
 import { List, ListItem } from 'material-ui/List';
 
@@ -114,7 +114,7 @@ class Tags extends PureComponent {
             return (
                 <List>
                     <Subheader>Tags</Subheader>
-                    <ListItem hoverColor={grey50}>
+                    <ListItem hoverColor={transparent}>
                         <div style={this.chipStyles.wrapper_read}>
                             {this.showTags()}
                         </div>

@@ -1,6 +1,7 @@
 import React, { Component, PureComponent } from 'react';
+import muiThemeable from 'material-ui/styles/muiThemeable';
 import S from '../store/Store';
-import Add from './Add';
+import { Add } from './Add';
 
 const { ipcRenderer } = window.require('electron');
 
@@ -50,7 +51,7 @@ class Edit extends Add {
     }
 
     componentDidMount() {
-        const { title, url, email } = this.refs,
+        const { title, url, email, notes } = this.refs,
             { match } = this.props,
             { id } = match.params,
             { entry } = this;
@@ -61,6 +62,8 @@ class Edit extends Add {
         url.setState({ hasValue: !!entry.url });
         email.input.value = entry.email;
         email.setState({ hasValue: !!entry.email });
+        notes.input.refs.input.value = entry.notes;
+        notes.setState({ hasValue: !!entry.notes });
         ipcRenderer.on('ironclad-reply', this.onPayload);
         ipcRenderer.send('ironclad', ['user', '-p', id]);
         ipcRenderer.send('ironclad', ['pass', '-p', id]);
@@ -73,7 +76,7 @@ class Edit extends Add {
     getInput() {
         const { entry } = this,
             { orig } = this,
-            { title, url, username, password, email, tags } = entry;
+            { title, url, username, password, email, tags, notes } = entry;
 
         let fields = [],
             changed = false;
@@ -126,7 +129,14 @@ class Edit extends Add {
             fields.push('n');
         }
 
-        fields.push('n');
+        if (notes !== orig.notes) {
+            fields.push('y');
+            fields.push(notes);
+            changed = true;
+        } else {
+            fields.push('n');
+        }
+
         return changed ? fields : false;
     }
 
@@ -154,7 +164,9 @@ class Edit extends Add {
         if (this.submitOk()) {
             const input = this.getInput();
             if (input) {
-                ipcRenderer.send('ironclad', ['edit', id], { input: input });
+                ipcRenderer.send('ironclad', ['edit', '--no-editor', id], {
+                    input: input
+                });
                 ipcRenderer.once('ironclad-reply', (e, payload) => {
                     const cmd = payload.cmd,
                         code = payload.code;
@@ -187,4 +199,4 @@ class Edit extends Add {
     }
 }
 
-export default Edit;
+export default muiThemeable()(Edit);

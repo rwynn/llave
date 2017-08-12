@@ -75,7 +75,7 @@ class DatabaseForm extends PureComponent {
     }
 
     componentWillUnmount() {
-        S.off('set.config', this.onConfig);
+        S.removeListener('set.config', this.onConfig);
     }
 
     initdb() {

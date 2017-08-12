@@ -1,13 +1,16 @@
 html,
 body {
+    font-family: 'Lato, sans-serif';
     padding: 0px;
     margin: 0px;
     overflow-x: hidden;
 }
 body {
     background-color: #e0e0e0;
-    font-family: 'Roboto', sans-serif;
     overflow-x: hidden;
+}
+body.dark {
+    background-color: #424242;
 }
 div#root {
     padding: 0px;
@@ -34,6 +37,6 @@ div.inner {
 }
 @media (min-width: 1000px) {
     div.inner {
-        max-width: 85vw;
+        max-width: 75vw;
     }
 }

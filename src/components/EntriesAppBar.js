@@ -24,7 +24,7 @@ class EntriesAppBar extends PureComponent {
     }
 
     componentWillUnmount() {
-        S.off('set.entries.filter', this.onFilter);
+        S.removeListener('set.entries.filter', this.onFilter);
     }
 
     onFilter(filter) {
