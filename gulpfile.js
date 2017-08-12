@@ -20,7 +20,7 @@ var maybeRename = function(path) {
 };
 
 gulp.task('clean', function() {
-    return del(['build/*', 'dist/bundle.js']);
+    return del(['build/*']);
 });
 
 gulp.task('main', ['clean'], function() {
