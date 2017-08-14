@@ -394,18 +394,19 @@ ipcMain.on('restore-entry', function(event, id) {
                     if (pwCount > 0) {
                         pw = pws[pwCount - 1];
                     }
+                    const notes = entry.notes ? ['y', entry.notes] : ['n'];
+                    const input = [
+                        entry.title,
+                        entry.url,
+                        entry.username,
+                        entry.email,
+                        pw,
+                        entry.tags.join(',')
+                    ].concat(notes);
                     run(
-                        ['add'],
+                        ['add', '--no-editor'],
                         {
-                            input: [
-                                entry.title,
-                                entry.url,
-                                entry.username,
-                                entry.email,
-                                pw,
-                                entry.tags.join(','),
-                                'n'
-                            ]
+                            input: input
                         },
                         function(state) {
                             resp.code = state.code;
