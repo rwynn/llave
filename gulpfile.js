@@ -6,20 +6,19 @@ const gulp = require('gulp'),
     path = require('path'),
     Stream = require('stream'),
     del = require('del'),
-    shasums = { data: {}};
-    
+    shasums = { data: {} };
+
 const buildIntegrity = function() {
-    const stream = new Stream.Transform({objectMode: true});
-    stream._transform = function (file, unused, callback) {
+    const stream = new Stream.Transform({ objectMode: true });
+    stream._transform = function(file, unused, callback) {
         const hash = crypto.createHash('sha384'),
             input = fs.createReadStream(file.path),
             basename = path.basename(file.path);
-        input.on('readable', function() { 
+        input.on('readable', function() {
             const data = input.read();
-            if (data)
-                hash.update(data);
+            if (data) hash.update(data);
             else {
-                shasums.data[basename] = hash.digest('base64');
+                shasums.data[basename] = 'sha384-' + hash.digest('base64');
                 callback(null, file);
             }
         });
@@ -31,7 +30,13 @@ const buildIntegrity = function() {
 };
 
 const paths = {
-    main: ['package.prod.json', 'npm-shrinkwrap.prod.json', 'main.js', 'ipc.js', 'go/**/ironclad*'],
+    main: [
+        'package.prod.json',
+        'npm-shrinkwrap.prod.json',
+        'main.js',
+        'ipc.js',
+        'go/**/ironclad*'
+    ],
     render: ['dist/bundle.js', 'dist/index.prod.html'],
     web: [
         'dist/bundle.web.js',
@@ -43,9 +48,7 @@ const paths = {
         'dist/index.cordova.html',
         'dist/worker.web.js'
     ],
-    integrity: [
-        'dist/*.js'
-    ]
+    integrity: ['dist/*.js']
 };
 
 const renamed = {
@@ -68,9 +71,7 @@ gulp.task('clean', function() {
 });
 
 gulp.task('integrity', function() {
-    return gulp
-        .src(paths.integrity)
-        .pipe(buildIntegrity());
+    return gulp.src(paths.integrity).pipe(buildIntegrity());
 });
 
 gulp.task('main', ['clean'], function() {
