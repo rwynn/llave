@@ -133,11 +133,11 @@ class IPCRenderer extends EventEmitter {
             S.send('dialog', {
                 title: 'Clear Clipboard',
                 message:
-                'Click "Clear" below to clear the clipboard. Click "Keep" do nothing.',
+                    'Click "Clear" below to clear the clipboard. Click "Keep" do nothing.',
                 leftLabel: 'Clear',
                 rightLabel: 'Keep',
                 onRightLabel: null,
-                onLeftLabel: clipboard.copy.bind(clipboard, "")
+                onLeftLabel: clipboard.copy.bind(clipboard, '')
             });
         }, 1000);
     }

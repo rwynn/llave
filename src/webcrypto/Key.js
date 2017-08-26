@@ -33,7 +33,7 @@ class Key extends EventEmitter {
             window.crypto.subtle = false;
             if (window.crypto.subtle === false) {
                 return true;
-            } 
+            }
         } catch (err) {}
         return subtle === undefined;
     }

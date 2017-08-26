@@ -61,7 +61,7 @@ class MainDialog extends PureComponent {
         const { dialog } = this.state;
         const actions = [];
         if (dialog.leftLabel) {
-            actions.push((
+            actions.push(
                 <FlatButton
                     label={dialog.leftLabel}
                     key="dialogLeft"
@@ -71,10 +71,10 @@ class MainDialog extends PureComponent {
                         dialog.onLeftLabel
                     )}
                 />
-            ));
+            );
         }
         if (dialog.rightLabel) {
-            actions.push((
+            actions.push(
                 <FlatButton
                     label={dialog.rightLabel}
                     key="dialogRight"
@@ -84,7 +84,7 @@ class MainDialog extends PureComponent {
                         dialog.onRightLabel
                     )}
                 />
-            ));
+            );
         }
         return actions;
     }
