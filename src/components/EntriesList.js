@@ -240,43 +240,67 @@ export class EntriesList extends PureComponent {
         );
     }
 
-    entry(e) {
-        const { querySortPredicate } = this.state;
+    rightIconMenu(e) {
         const hasPass = e.passwords.reduce((a, p) => {
             return a || p;
         }, false);
+        let rightIconMenu = null;
+        if (e.active) {
+            let userItem,
+                passwordItem,
+                urlItem = null;
+            if (e.username) {
+                userItem = (
+                    <MenuItem onTouchTap={this.copyUser.bind(this, e)}>
+                        Copy User
+                    </MenuItem>
+                );
+            }
+            if (hasPass) {
+                passwordItem = (
+                    <MenuItem onTouchTap={this.copyPassword.bind(this, e)}>
+                        Copy Password
+                    </MenuItem>
+                );
+            }
+            if (e.url) {
+                urlItem = (
+                    <MenuItem onTouchTap={this.copyURL.bind(this, e)}>
+                        Copy URL
+                    </MenuItem>
+                );
+            }
+            rightIconMenu = (
+                <IconMenu iconButtonElement={iconButtonElement}>
+                    {userItem}
+                    {passwordItem}
+                    {urlItem}
+                    <MenuItem onTouchTap={this.editEntry.bind(this, e)}>
+                        Edit
+                    </MenuItem>
+                    <MenuItem onTouchTap={this.deleteEntry.bind(this, e)}>
+                        Delete
+                    </MenuItem>
+                </IconMenu>
+            );
+        } else {
+            rightIconMenu = (
+                <IconMenu iconButtonElement={iconButtonElement}>
+                    <MenuItem onTouchTap={this.restoreEntry.bind(this, e)}>
+                        Restore
+                    </MenuItem>
+                </IconMenu>
+            );
+        }
+        return rightIconMenu;
+    }
+
+    entry(e) {
+        const { querySortPredicate } = this.state;
         const key = e.id.toString();
         const l = e.title.charAt(0).toUpperCase();
         const letter = this.letter(l);
-        const rightIconMenu = e.active
-            ? <IconMenu iconButtonElement={iconButtonElement}>
-                  {e.username
-                      ? <MenuItem onTouchTap={this.copyUser.bind(this, e)}>
-                            Copy User
-                        </MenuItem>
-                      : null}
-                  {hasPass
-                      ? <MenuItem onTouchTap={this.copyPassword.bind(this, e)}>
-                            Copy Password
-                        </MenuItem>
-                      : null}
-                  {e.url
-                      ? <MenuItem onTouchTap={this.copyURL.bind(this, e)}>
-                            Copy URL
-                        </MenuItem>
-                      : null}
-                  <MenuItem onTouchTap={this.editEntry.bind(this, e)}>
-                      Edit
-                  </MenuItem>
-                  <MenuItem onTouchTap={this.deleteEntry.bind(this, e)}>
-                      Delete
-                  </MenuItem>
-              </IconMenu>
-            : <IconMenu iconButtonElement={iconButtonElement}>
-                  <MenuItem onTouchTap={this.restoreEntry.bind(this, e)}>
-                      Restore
-                  </MenuItem>
-              </IconMenu>;
+        const rightIconMenu = this.rightIconMenu(e);
         let divider = null,
             repeat = false;
         if (!querySortPredicate) {

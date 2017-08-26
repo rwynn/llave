@@ -59,24 +59,33 @@ class MainDialog extends PureComponent {
 
     dialogActions() {
         const { dialog } = this.state;
-        const actions = [
-            <FlatButton
-                label={dialog.leftLabel}
-                primary={true}
-                onTouchTap={this.handleDialogButton.bind(
-                    this,
-                    dialog.onLeftLabel
-                )}
-            />,
-            <FlatButton
-                label={dialog.rightLabel}
-                primary={true}
-                onTouchTap={this.handleDialogButton.bind(
-                    this,
-                    dialog.onRightLabel
-                )}
-            />
-        ];
+        const actions = [];
+        if (dialog.leftLabel) {
+            actions.push((
+                <FlatButton
+                    label={dialog.leftLabel}
+                    key="dialogLeft"
+                    primary={true}
+                    onTouchTap={this.handleDialogButton.bind(
+                        this,
+                        dialog.onLeftLabel
+                    )}
+                />
+            ));
+        }
+        if (dialog.rightLabel) {
+            actions.push((
+                <FlatButton
+                    label={dialog.rightLabel}
+                    key="dialogRight"
+                    primary={true}
+                    onTouchTap={this.handleDialogButton.bind(
+                        this,
+                        dialog.onRightLabel
+                    )}
+                />
+            ));
+        }
         return actions;
     }
 

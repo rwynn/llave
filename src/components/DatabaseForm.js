@@ -220,6 +220,7 @@ class DatabaseForm extends PureComponent {
                     errorText={this.state.pwError}
                     onKeyPress={this.handlePress}
                     onChange={this.handlePass}
+                    autoComplete="off"
                     type="password"
                     fullWidth={true}
                     floatingLabelText="Database key"

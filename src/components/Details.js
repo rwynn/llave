@@ -40,7 +40,7 @@ const descIcon = (
 
 const { ipcRenderer } = window.require('electron');
 
-class Details extends PureComponent {
+export class Details extends PureComponent {
     state = {
         title: '',
         url: '',
@@ -337,6 +337,10 @@ class Details extends PureComponent {
         );
     }
 
+    deleteIcon() {
+        return <FlatButton icon={deleteIcon} label="Delete" />;
+    }
+
     render() {
         return (
             <div>
@@ -350,9 +354,7 @@ class Details extends PureComponent {
                     }}
                     onRightIconButtonTouchTap={this.handleDelete}
                     onLeftIconButtonTouchTap={this.handleMenu}
-                    iconElementRight={
-                        <FlatButton icon={deleteIcon} label="Delete" />
-                    }
+                    iconElementRight={this.deleteIcon()}
                 />
                 <div className="inner">
                     <br />

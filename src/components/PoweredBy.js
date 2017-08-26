@@ -40,7 +40,7 @@ class PoweredBy extends PureComponent {
         return (
             <div>
                 <span style={{ fontSize: '16px', color: textColor }}>
-                    Powered By{' '}
+                    llave Powered By{' '}
                 </span>
                 <span style={{ fontSize: '18px', color: accent1Color }}>
                     Ironclad {version}

@@ -9,7 +9,7 @@ import S from '../store/Store';
 
 const { ipcRenderer } = window.require('electron');
 
-class Entries extends PureComponent {
+export class Entries extends PureComponent {
     constructor(props) {
         super(props);
         this.handleToggle = this.handleToggle.bind(this);
@@ -69,13 +69,23 @@ class Entries extends PureComponent {
         history.push('/add');
     }
 
+    appBar() {
+        return (
+            <EntriesAppBar
+                handleToggle={this.handleToggle}
+                handleAdd={this.handleAdd}
+            />
+        );
+    }
+
+    entriesList() {
+        return <EntriesList history={this.props.history} />;
+    }
+
     render() {
         return (
             <div>
-                <EntriesAppBar
-                    handleToggle={this.handleToggle}
-                    handleAdd={this.handleAdd}
-                />
+                {this.appBar()}
                 <div className="inner">
                     <br />
                     <Card initiallyExpanded={true}>
@@ -92,7 +102,7 @@ class Entries extends PureComponent {
                     <br />
                     <Card initiallyExpanded={true}>
                         <CardText expandable={false}>
-                            <EntriesList history={this.props.history} />
+                            {this.entriesList()}
                         </CardText>
                     </Card>
                 </div>

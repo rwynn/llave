@@ -15,12 +15,12 @@ const deleteIcon = (
 );
 const importIcon = (
     <FontIcon style={{ fontSize: '18px' }} className="material-icons">
-        file_upload
+        file_download
     </FontIcon>
 );
 const exportIcon = (
     <FontIcon style={{ fontSize: '18px' }} className="material-icons">
-        file_download
+        file_upload
     </FontIcon>
 );
 const lockIcon = (
@@ -29,7 +29,7 @@ const lockIcon = (
     </FontIcon>
 );
 
-class MainMenu extends PureComponent {
+export class MainMenu extends PureComponent {
     state = {
         menuOpen: false
     };
@@ -113,6 +113,37 @@ class MainMenu extends PureComponent {
         history.push('/');
     }
 
+    menu() {
+        return (
+            <Menu>
+                <MenuItem
+                    onTouchTap={this.switchDatabase}
+                    leftIcon={lockIcon}
+                    value={true}
+                    primaryText="Lock Database"
+                />
+                <MenuItem
+                    onTouchTap={this.confirmExport}
+                    leftIcon={exportIcon}
+                    value={true}
+                    primaryText="Export Entries"
+                />
+                <MenuItem
+                    onTouchTap={this.importDatabase}
+                    leftIcon={importIcon}
+                    value={true}
+                    primaryText="Import Entries"
+                />
+                <MenuItem
+                    onTouchTap={this.showBin}
+                    leftIcon={deleteIcon}
+                    value={true}
+                    primaryText="Recycle Bin"
+                />
+            </Menu>
+        );
+    }
+
     render() {
         return (
             <Drawer
@@ -121,32 +152,7 @@ class MainMenu extends PureComponent {
                 onRequestChange={this.onRequestMenu}
                 docked={false}>
                 <Subheader>Manage Database</Subheader>
-                <Menu>
-                    <MenuItem
-                        onTouchTap={this.switchDatabase}
-                        leftIcon={lockIcon}
-                        value={true}
-                        primaryText="Lock Database"
-                    />
-                    <MenuItem
-                        onTouchTap={this.confirmExport}
-                        leftIcon={exportIcon}
-                        value={true}
-                        primaryText="Export Entries"
-                    />
-                    <MenuItem
-                        onTouchTap={this.importDatabase}
-                        leftIcon={importIcon}
-                        value={true}
-                        primaryText="Import Entries"
-                    />
-                    <MenuItem
-                        onTouchTap={this.showBin}
-                        leftIcon={deleteIcon}
-                        value={true}
-                        primaryText="Recycle Bin"
-                    />
-                </Menu>
+                {this.menu()}
             </Drawer>
         );
     }

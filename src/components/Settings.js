@@ -55,7 +55,7 @@ const themeIcon = (
     </FontIcon>
 );
 
-class Settings extends PureComponent {
+export class Settings extends PureComponent {
     state = {
         example: ''
     };
@@ -347,6 +347,55 @@ class Settings extends PureComponent {
         });
     }
 
+    passwordSettingsCard() {
+        return (
+            <Card initiallyExpanded={true}>
+                <CardHeader
+                    avatar={keyIcon}
+                    title="Default Password Settings"
+                    style={this.cardHeaderStyle}
+                    subtitle="The password settings below will be applied to new entries"
+                    actAsExpander={false}
+                    showExpandableButton={false}
+                />
+                <CardText style={this.cardTextStyle} expandable={false}>
+                    <List>
+                        <ListItem
+                            primaryText="Digits"
+                            secondaryText="Include Digits"
+                            rightToggle={this.makeToggle('d')}
+                        />
+                        <ListItem
+                            primaryText="Symbols"
+                            secondaryText="Include Symbols"
+                            rightToggle={this.makeToggle('s')}
+                        />
+                        <ListItem
+                            primaryText="Uppercase"
+                            secondaryText="Include Uppercase Characters"
+                            rightToggle={this.makeToggle('u')}
+                        />
+                        <ListItem
+                            primaryText="Lowercase"
+                            secondaryText="Include Lowercase Characters"
+                            rightToggle={this.makeToggle('l')}
+                        />
+                        <PasswordLength
+                            len={this.passwords.len}
+                            onChange={this.sliderChange}
+                        />
+                        <Subheader>Example Password</Subheader>
+                        <Chip
+                            labelStyle={this.exampleLabelStyle}
+                            style={this.exampleStyle}>
+                            {this.state.example}
+                        </Chip>
+                    </List>
+                </CardText>
+            </Card>
+        );
+    }
+
     render() {
         const { autoLock } = this;
         const timeout = autoLock.enabled
@@ -425,50 +474,7 @@ class Settings extends PureComponent {
                         </CardText>
                     </Card>
                     <br />
-                    <Card initiallyExpanded={true}>
-                        <CardHeader
-                            avatar={keyIcon}
-                            title="Default Password Settings"
-                            style={this.cardHeaderStyle}
-                            subtitle="The password settings below will be applied to new entries"
-                            actAsExpander={false}
-                            showExpandableButton={false}
-                        />
-                        <CardText style={this.cardTextStyle} expandable={false}>
-                            <List>
-                                <ListItem
-                                    primaryText="Digits"
-                                    secondaryText="Include Digits"
-                                    rightToggle={this.makeToggle('d')}
-                                />
-                                <ListItem
-                                    primaryText="Symbols"
-                                    secondaryText="Include Symbols"
-                                    rightToggle={this.makeToggle('s')}
-                                />
-                                <ListItem
-                                    primaryText="Uppercase"
-                                    secondaryText="Include Uppercase Characters"
-                                    rightToggle={this.makeToggle('u')}
-                                />
-                                <ListItem
-                                    primaryText="Lowercase"
-                                    secondaryText="Include Lowercase Characters"
-                                    rightToggle={this.makeToggle('l')}
-                                />
-                                <PasswordLength
-                                    len={this.passwords.len}
-                                    onChange={this.sliderChange}
-                                />
-                                <Subheader>Example Password</Subheader>
-                                <Chip
-                                    labelStyle={this.exampleLabelStyle}
-                                    style={this.exampleStyle}>
-                                    {this.state.example}
-                                </Chip>
-                            </List>
-                        </CardText>
-                    </Card>
+                    {this.passwordSettingsCard()}
                 </div>
             </div>
         );

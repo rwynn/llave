@@ -9,6 +9,18 @@ var webpack = require('webpack');
 var config = require('./webpack.config');
 var compiler = webpack(config);
 
+app.get('/*', function(req, res, next) {
+    res.header(
+        'Content-Security-Policy',
+        'sandbox allow-scripts allow-same-origin;'
+    );
+    res.header('X-Frame-Options', 'deny');
+    res.header('X-XSS-Protection', '1; mode=block');
+    res.header('Referrer-Policy', 'no-referrer');
+    res.header('X-Permitted-Cross-Domain-Policies', 'none');
+    next();
+});
+
 app.use(
     webpackDevMiddleware(compiler, {
         noInfo: true,
@@ -21,6 +33,14 @@ app.use(express.static(path.join(__dirname, 'dist')));
 
 app.get('/', function(request, response) {
     response.sendFile(__dirname + '/dist/index.html');
+});
+
+app.get('/web', function(request, response) {
+    response.sendFile(__dirname + '/dist/index.web.html');
+});
+
+app.get('/web/worker.web.js', function(request, response) {
+    response.sendFile(__dirname + '/dist/worker.web.js');
 });
 
 app.listen(PORT, function(error) {

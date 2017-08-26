@@ -33,6 +33,15 @@ class EntriesAppBar extends PureComponent {
         });
     }
 
+    addButton() {
+        const { handleAdd } = this.props;
+        if (handleAdd) {
+            return <FlatButton icon={addIcon} label="Add" />;
+        } else {
+            return null;
+        }
+    }
+
     render() {
         const title = entriesTitles[this.state.filter];
         return (
@@ -41,7 +50,7 @@ class EntriesAppBar extends PureComponent {
                 style={{ position: 'fixed', top: '0', paddingRight: '40px' }}
                 onLeftIconButtonTouchTap={this.props.handleToggle}
                 onRightIconButtonTouchTap={this.props.handleAdd}
-                iconElementRight={<FlatButton icon={addIcon} label="Add" />}
+                iconElementRight={this.addButton()}
             />
         );
     }
