@@ -30,7 +30,6 @@ class Encrypt extends EventEmitter {
 
     zip(keys) {
         this.state.keys = keys;
-        Object.freeze(this.state);
         const promise = new Promise((resolve, reject) => {
             let json;
             try {
@@ -65,17 +64,18 @@ class Encrypt extends EventEmitter {
 
     sign(encrypted) {
         const { sign } = this.state.keys;
-        this.body = Buffer.concat([
+        this.state.body = Buffer.concat([
             Buffer.from(this.iv),
             Buffer.from(encrypted)
         ]);
-        return subtle.sign('HMAC', sign, this.body).then(this.finalize);
+        Object.freeze(this.state);
+        return subtle.sign('HMAC', sign, this.state.body).then(this.finalize);
     }
 
     finalize(signature) {
         const final = Buffer.concat([
             Buffer.from(this.saltBuffer),
-            Buffer.from(this.body),
+            Buffer.from(this.state.body),
             Buffer.from(signature)
         ]);
         return Promise.resolve(final);
