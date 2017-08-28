@@ -6,6 +6,7 @@ const gulp = require('gulp'),
     path = require('path'),
     Stream = require('stream'),
     del = require('del'),
+    gulpNSP = require('gulp-nsp'),
     shasums = { data: {} };
 
 const buildIntegrity = function() {
@@ -70,18 +71,28 @@ gulp.task('clean', function() {
     return del(['build/*']);
 });
 
+gulp.task('nsp', function(cb) {
+    gulpNSP(
+        {
+            shrinkwrap: __dirname + '/npm-shrinkwrap.json',
+            package: __dirname + '/package.json'
+        },
+        cb
+    );
+});
+
 gulp.task('integrity', function() {
     return gulp.src(paths.integrity).pipe(buildIntegrity());
 });
 
-gulp.task('main', ['clean'], function() {
+gulp.task('main', ['nsp', 'clean'], function() {
     return gulp
         .src(paths.main, { base: '.' })
         .pipe(rename(maybeRename))
         .pipe(gulp.dest('build/app'));
 });
 
-gulp.task('render', ['clean', 'integrity'], function() {
+gulp.task('render', ['nsp', 'clean', 'integrity'], function() {
     return gulp
         .src(paths.render, { base: '.' })
         .pipe(template(shasums))
@@ -89,7 +100,7 @@ gulp.task('render', ['clean', 'integrity'], function() {
         .pipe(gulp.dest('build/app'));
 });
 
-gulp.task('web', ['clean', 'integrity'], function() {
+gulp.task('web', ['nsp', 'clean', 'integrity'], function() {
     return gulp
         .src(paths.web)
         .pipe(template(shasums))
@@ -97,7 +108,7 @@ gulp.task('web', ['clean', 'integrity'], function() {
         .pipe(gulp.dest('build/web'));
 });
 
-gulp.task('cordova', ['clean', 'integrity'], function() {
+gulp.task('cordova', ['nsp', 'clean', 'integrity'], function() {
     return gulp
         .src(paths.cordova)
         .pipe(template(shasums))
