@@ -49,6 +49,8 @@ You can do so by double clicking `electron`, `Electron`, or `electron.exe` from 
 
 * Clone the llave repository and install nodejs.
 
+* Run `npm install` to install dependencies
+
 * Run `npm run package` to create an `app.esar` file and an `app.esar.unpacked` directory in the build folder
 
 * Follow the steps in `using llave on the desktop` substituting your own app.esar file and app.esar.unpacked folder for the ones in step 3. 
@@ -63,6 +65,8 @@ specifically `window.crypto` and `window.crypto.subtle` without prefixes like ms
 ### packaging llave for mobile
 
 * Clone the llave repository and install nodejs.
+
+* Run `npm install` to install dependencies
 
 * Run `npm run package` to create a `cordova/www` directory in the build folder
 
