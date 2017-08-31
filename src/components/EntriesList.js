@@ -351,6 +351,7 @@ export class EntriesList extends PureComponent {
                     ur = ua.localeCompare(ub);
                 return ur;
             }
+            return tr;
         }
     }
 

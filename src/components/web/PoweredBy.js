@@ -7,7 +7,7 @@ class PoweredBy extends PureComponent {
         return (
             <div>
                 <span style={{ fontSize: '16px', color: textColor }}>
-                    llave Powered By{' '}
+                    llave powered by{' '}
                 </span>
                 <span style={{ fontSize: '18px', color: accent1Color }}>
                     Web Crypto

@@ -1,14 +1,16 @@
 {
     "name": "llave",
-    "version": "0.2.3",
+    "version": "0.3.0",
     "license": "MIT",
     "repository": "https://github.com/rwynn/llave",
     "description": "An Electron shell for the Ironclad password manager",
     "main": "main.js",
     "dependencies": {
+        "csv": "^1.1.1",
         "electron-storage": "^1.0.7",
         "joi": "^10.6.0",
         "lunr": "^2.1.2",
+        "sax": "^1.2.4",
         "toml": "^2.3.2",
         "ya-storage": "^1.0.3"
     }

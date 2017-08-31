@@ -32,10 +32,10 @@ class Decrypt extends EventEmitter {
             { verify } = this.state.keys;
 
         if (cipherText.byteLength % blockSize !== 0) {
-            return Promise.reject('invalid ciphertext length');
+            return Promise.reject(new Error('invalid ciphertext length'));
         }
         if (cipherText.byteLength < 4 * blockSize) {
-            return Promise.reject('invalid ciphertext length');
+            return Promise.reject(new Error('invalid ciphertext length'));
         }
 
         const index = cipherText.byteLength - hmacSize,
@@ -68,7 +68,7 @@ class Decrypt extends EventEmitter {
                 )
                 .then(this.unzip);
         } else {
-            return Promise.reject('authentication failed');
+            return Promise.reject(new Error('authentication failed'));
         }
     }
 

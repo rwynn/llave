@@ -65,9 +65,19 @@ class DatabaseForm extends PureComponent {
                 history.push('/entries');
             })
             .catch(err => {
+                let msg = err.message;
+                if (!msg) {
+                    if (err.name === 'PBKDF2') {
+                        msg =
+                            'Your browser does not appear to support PBKDF2.  This is required to decrypt the database.';
+                    } else {
+                        msg =
+                            'Unknown error decrypting database.  Your browser may not support all the required web crypto features.';
+                    }
+                }
                 this.empty_pass();
                 this.setState({
-                    pwError: err,
+                    pwError: msg,
                     submitOk: false
                 });
             });

@@ -1,6 +1,7 @@
 'use strict';
 
 const electron = require('electron'),
+    { app } = electron,
     { ipcMain } = electron,
     toml = require('toml'),
     Readable = require('stream').Readable,
@@ -11,6 +12,8 @@ const electron = require('electron'),
     yaStorage = require('ya-storage'),
     Joi = require('joi'),
     path = require('path'),
+    fs = require('fs'),
+    formatdb = require('./formatdb'),
     { execFile } = require('child_process');
 
 const ironcladPlatformBinary = {
@@ -173,7 +176,6 @@ const run = function(args, options, cb) {
                 `Unable to run ironclad.  Is it installed at ${ironcladBinary}?`
             );
             state.cancelled = true;
-            const { app } = electron;
             app.exit(1);
         } else {
             dialog.showErrorBox(
@@ -317,14 +319,37 @@ ipcMain.on('export', function(event) {
     });
 });
 
-ipcMain.on('import', function(event) {
+ipcMain.on('import', function(event, options) {
+    const opts = options || {
+        db: 'Ironclad',
+        format: 'JSON'
+    };
+    const { db, format } = opts;
     dialog.showOpenDialog(function(files) {
         if (files !== undefined) {
-            const fileName = files[0],
-                args = ['import', fileName];
-            run(args, null, state => {
-                event.sender.send('import-reply', state);
-            });
+            const fileName = files[0];
+            if (db === 'Ironclad') {
+                const args = ['import', fileName];
+                run(args, null, state => {
+                    event.sender.send('import-reply', state);
+                });
+            } else {
+                formatdb(fileName, db, format)
+                    .then(formatted => {
+                        const args = ['import', formatted];
+                        run(args, null, state => {
+                            event.sender.send('import-reply', state);
+                            fs.unlink(formatted);
+                        });
+                    })
+                    .catch(err => {
+                        event.sender.send('import-reply', {
+                            code: 1,
+                            data: '',
+                            err: err.message
+                        });
+                    });
+            }
         } else {
             setImmediate(function() {
                 event.sender.send('import-reply', {

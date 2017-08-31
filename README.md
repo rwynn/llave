@@ -72,7 +72,7 @@ specifically `window.crypto` and `window.crypto.subtle` without prefixes like ms
 
 * Refer to the Getting Started instructions at [Apache Cordova](https://cordova.apache.org/) to create and run a project.
 
-* Copy the contents of the `cordova/www` directory form the llave build folder to the `www` directory in your Cordova project and re-run the project.
+* Copy the contents of the `cordova/www` directory from the llave build folder to the `www` directory in your Cordova project and re-run the project.
 
 * Follow the instructions on the Cordova website for building and deploying a signed mobile application from your project.
 
@@ -82,6 +82,8 @@ If you simply want to emulate the llave for mobile application for local testing
 without creating a full blown mobile app with Cordova then you can do the following:
 
 * Clone the llave repository and install nodejs.
+
+* Run `npm install` to install dependencies
 
 * Run `npm run package` to create a `web` directory in the build folder
 
@@ -93,7 +95,7 @@ without creating a full blown mobile app with Cordova then you can do the follow
 
 * Run `npm install` from the root llave folder.
 
-* Run `npm run dev` to start Webpack.
+* Run `node server.js` to start Webpack.
 
 * In another terminal window run `npm start` to start Electron.
 

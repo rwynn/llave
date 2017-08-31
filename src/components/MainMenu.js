@@ -41,6 +41,7 @@ export class MainMenu extends PureComponent {
         this.confirmExport = this.confirmExport.bind(this);
         this.exportDatabase = this.exportDatabase.bind(this);
         this.importDatabase = this.importDatabase.bind(this);
+        this.doImport = this.doImport.bind(this);
         this.onMenu = this.onMenu.bind(this);
         this.onRequestMenu = this.onRequestMenu.bind(this);
         S.on('set.menu.main', this.onMenu);
@@ -86,7 +87,30 @@ export class MainMenu extends PureComponent {
 
     importDatabase() {
         S.set('menu.main', false);
-        ipcRenderer.send('import');
+        S.send('dialog', {
+            title: 'Import Database',
+            choices: ['Ironclad JSON', 'KeePass 1.X XML', 'KeePass 1.X CSV'],
+            choice: 'Ironclad JSON',
+            choicesLabel: 'File Format',
+            message: 'Select the file format to import',
+            leftLabel: 'Cancel',
+            rightLabel: 'Choose File',
+            onRightLabel: this.doImport,
+            onLeftLabel: undefined
+        });
+    }
+
+    doImport(choice) {
+        let options;
+        switch (choice) {
+            case 'KeePass 1.X XML':
+                options = { db: 'KeePass', format: 'XML' };
+                break;
+            case 'KeePass 1.X CSV':
+                options = { db: 'KeePass', format: 'CSV' };
+                break;
+        }
+        ipcRenderer.send('import', options);
         ipcRenderer.once('import-reply', (ev, payload) => {
             const { cmd, err, code } = payload;
             const msg = code === 0 ? 'Entries imported' : err;

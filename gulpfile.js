@@ -33,9 +33,10 @@ const buildIntegrity = function() {
 const paths = {
     main: [
         'package.prod.json',
-        'npm-shrinkwrap.prod.json',
+        'npm-shrinkwrap.json',
         'main.js',
         'ipc.js',
+        'formatdb.js',
         'go/**/ironclad*'
     ],
     render: ['dist/bundle.js', 'dist/index.prod.html'],
@@ -54,7 +55,6 @@ const paths = {
 
 const renamed = {
     'package.prod': 'package',
-    'npm-shrinkwrap.prod': 'npm-shrinkwrap',
     'index.prod': 'index',
     'index.web.prod': 'index',
     'index.cordova': 'index'

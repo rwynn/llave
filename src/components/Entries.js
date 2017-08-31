@@ -19,6 +19,7 @@ export class Entries extends PureComponent {
     }
 
     componentWillUnmount() {
+        window.scrollTo(0, 0);
         this.resetSearch();
     }
 

@@ -1,6 +1,8 @@
 import React, { Component, PureComponent } from 'react';
 import Dialog from 'material-ui/Dialog';
 import FlatButton from 'material-ui/FlatButton';
+import SelectField from 'material-ui/SelectField';
+import MenuItem from 'material-ui/MenuItem';
 import S from '../store/Store';
 
 class MainDialog extends PureComponent {
@@ -12,13 +14,16 @@ class MainDialog extends PureComponent {
             leftLabel: '',
             rightLabel: '',
             onLeftLabel: null,
-            onRightLabel: null
+            onRightLabel: null,
+            choices: null,
+            choicesLabel: null
         }
     };
 
     constructor(props) {
         super(props);
         this.onDialog = this.onDialog.bind(this);
+        this.onChoice = this.onChoice.bind(this);
         S.on('set.dialog', this.onDialog);
     }
 
@@ -41,11 +46,16 @@ class MainDialog extends PureComponent {
 
     handleDialogButton(cb) {
         const { dialog } = this.state;
+        const choice = dialog.choices ? dialog.choice : undefined;
         this.setState({
             dialogOpen: false
         });
         if (cb) {
-            cb();
+            if (choice) {
+                cb(choice);
+            } else {
+                cb();
+            }
         }
         Object.assign(dialog, {
             title: '',
@@ -89,6 +99,31 @@ class MainDialog extends PureComponent {
         return actions;
     }
 
+    onChoice(e, i, choice) {
+        const { dialog } = this.state;
+        dialog.choice = choice;
+        this.forceUpdate();
+    }
+
+    choices() {
+        const { dialog } = this.state,
+            { choices } = dialog;
+        const map = c => {
+            return <MenuItem key={c} value={c} primaryText={c} />;
+        };
+        if (choices) {
+            return (
+                <SelectField
+                    value={dialog.choice}
+                    floatingLabelText={dialog.choicesLabel}
+                    fullWidth={true}
+                    onChange={this.onChoice}>
+                    {choices.map(map)}
+                </SelectField>
+            );
+        }
+    }
+
     render() {
         return (
             <Dialog
@@ -97,6 +132,7 @@ class MainDialog extends PureComponent {
                 modal={true}
                 open={this.state.dialogOpen}>
                 {this.state.dialog.message}
+                {this.choices()}
             </Dialog>
         );
     }

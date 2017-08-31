@@ -19,7 +19,9 @@ class Key extends EventEmitter {
     }
 
     rejectSupport() {
-        return Promise.reject('Platform does not support Web Crypto');
+        return Promise.reject(
+            new Error('Platform does not support Web Crypto')
+        );
     }
 
     notSupported() {
@@ -56,10 +58,10 @@ class Key extends EventEmitter {
 
     deriveEncryption(masterKey) {
         if (!this.saltBuffer) {
-            return Promise.reject('invalid salt');
+            return Promise.reject(new Error('invalid salt'));
         }
         if (this.saltBuffer.byteLength !== saltLength) {
-            return Promise.reject('invalid salt');
+            return Promise.reject(new Error('invalid salt'));
         }
         return subtle
             .deriveKey(
@@ -85,7 +87,7 @@ class Key extends EventEmitter {
 
     importSign(key) {
         if (key.byteLength !== keySize) {
-            return Promise.reject('invalid key size');
+            return Promise.reject(new Error('invalid key size'));
         }
         return subtle
             .importKey(

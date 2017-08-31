@@ -211,6 +211,24 @@ export class Details extends PureComponent {
         }
     }
 
+    makeTextField(prop) {
+        const val = this.state[prop];
+        const label = prop.charAt(0).toUpperCase() + prop.substring(1);
+        const children = (
+            <pre style={{ fontFamily: 'inherit' }}>
+                {val}
+            </pre>
+        );
+        return (
+            <ListItem
+                style={{ cursor: 'copy' }}
+                onTouchTap={this.clip.bind(this, prop, label)}
+                children={children}
+                secondaryText={label}
+            />
+        );
+    }
+
     makeField(prop) {
         let val = this.state[prop];
         let rightIconButton = null,
@@ -374,7 +392,7 @@ export class Details extends PureComponent {
                                 {this.makeField('username')}
                                 {this.makeField('email')}
                                 {this.makeField('password')}
-                                {this.makeField('notes')}
+                                {this.makeTextField('notes')}
                                 <Tags readonly={true} tags={this.state.tags} />
                             </List>
                         </CardText>
