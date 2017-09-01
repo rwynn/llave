@@ -2099,6 +2099,12 @@
         }
       }
     },
+    "gulp-filter": {
+      "version": "5.0.1",
+      "from": "gulp-filter@latest",
+      "resolved": "https://registry.npmjs.org/gulp-filter/-/gulp-filter-5.0.1.tgz",
+      "dev": true
+    },
     "gulp-nsp": {
       "version": "2.4.2",
       "from": "gulp-nsp@latest",
@@ -5065,6 +5071,12 @@
       "resolved": "https://registry.npmjs.org/ms/-/ms-2.0.0.tgz",
       "dev": true
     },
+    "multimatch": {
+      "version": "2.1.0",
+      "from": "multimatch@>=2.0.0 <3.0.0",
+      "resolved": "https://registry.npmjs.org/multimatch/-/multimatch-2.1.0.tgz",
+      "dev": true
+    },
     "multipipe": {
       "version": "0.1.2",
       "from": "multipipe@>=0.1.2 <0.2.0",
@@ -6940,6 +6952,32 @@
       "version": "0.1.2",
       "from": "stream-transform@>=0.1.0 <0.2.0",
       "resolved": "https://registry.npmjs.org/stream-transform/-/stream-transform-0.1.2.tgz"
+    },
+    "streamfilter": {
+      "version": "1.0.5",
+      "from": "streamfilter@>=1.0.5 <2.0.0",
+      "resolved": "https://registry.npmjs.org/streamfilter/-/streamfilter-1.0.5.tgz",
+      "dev": true,
+      "dependencies": {
+        "isarray": {
+          "version": "1.0.0",
+          "from": "isarray@>=1.0.0 <1.1.0",
+          "resolved": "https://registry.npmjs.org/isarray/-/isarray-1.0.0.tgz",
+          "dev": true
+        },
+        "readable-stream": {
+          "version": "2.3.3",
+          "from": "readable-stream@>=2.0.2 <3.0.0",
+          "resolved": "https://registry.npmjs.org/readable-stream/-/readable-stream-2.3.3.tgz",
+          "dev": true
+        },
+        "string_decoder": {
+          "version": "1.0.3",
+          "from": "string_decoder@>=1.0.3 <1.1.0",
+          "resolved": "https://registry.npmjs.org/string_decoder/-/string_decoder-1.0.3.tgz",
+          "dev": true
+        }
+      }
     },
     "strict-uri-encode": {
       "version": "1.1.0",

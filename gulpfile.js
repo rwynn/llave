@@ -1,6 +1,7 @@
 const gulp = require('gulp'),
     rename = require('gulp-rename'),
     template = require('gulp-template'),
+    filter = require('gulp-filter'),
     crypto = require('crypto'),
     fs = require('fs'),
     path = require('path'),
@@ -93,26 +94,35 @@ gulp.task('main', ['nsp', 'clean'], function() {
 });
 
 gulp.task('render', ['nsp', 'clean', 'integrity'], function() {
+    const templates = filter(['**/index.html'], { restore: true });
     return gulp
         .src(paths.render, { base: '.' })
-        .pipe(template(shasums))
         .pipe(rename(maybeRename))
+        .pipe(templates)
+        .pipe(template(shasums))
+        .pipe(templates.restore)
         .pipe(gulp.dest('build/app'));
 });
 
 gulp.task('web', ['nsp', 'clean', 'integrity'], function() {
+    const templates = filter(['**/index.html'], { restore: true });
     return gulp
         .src(paths.web)
-        .pipe(template(shasums))
         .pipe(rename(maybeRename))
+        .pipe(templates)
+        .pipe(template(shasums))
+        .pipe(templates.restore)
         .pipe(gulp.dest('build/web'));
 });
 
 gulp.task('cordova', ['nsp', 'clean', 'integrity'], function() {
+    const templates = filter(['**/index.html'], { restore: true });
     return gulp
         .src(paths.cordova)
-        .pipe(template(shasums))
         .pipe(rename(maybeRename))
+        .pipe(templates)
+        .pipe(template(shasums))
+        .pipe(templates.restore)
         .pipe(gulp.dest('build/cordova/www'));
 });
 
