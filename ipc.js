@@ -324,42 +324,68 @@ ipcMain.on('import', function(event, options) {
         db: 'Ironclad',
         format: 'JSON'
     };
-    const { db, format } = opts;
-    dialog.showOpenDialog(function(files) {
-        if (files !== undefined) {
-            const fileName = files[0];
-            if (db === 'Ironclad') {
-                const args = ['import', fileName];
+    const { db, format, path, mappings } = opts;
+    if (path) {
+        formatdb(path, db, format, mappings)
+            .then(formatted => {
+                const args = ['import', formatted];
                 run(args, null, state => {
                     event.sender.send('import-reply', state);
+                    fs.unlink(formatted);
                 });
-            } else {
-                formatdb(fileName, db, format)
-                    .then(formatted => {
-                        const args = ['import', formatted];
-                        run(args, null, state => {
-                            event.sender.send('import-reply', state);
-                            fs.unlink(formatted);
-                        });
-                    })
-                    .catch(err => {
-                        event.sender.send('import-reply', {
-                            code: 1,
-                            data: '',
-                            err: err.message
-                        });
-                    });
-            }
-        } else {
-            setImmediate(function() {
+            })
+            .catch(err => {
                 event.sender.send('import-reply', {
                     code: 1,
                     data: '',
-                    err: 'No file chosen for import'
+                    err: err.message
                 });
             });
-        }
-    });
+    } else {
+        dialog.showOpenDialog(function(files) {
+            if (files !== undefined) {
+                const fileName = files[0];
+                if (db === 'Ironclad') {
+                    const args = ['import', fileName];
+                    run(args, null, state => {
+                        event.sender.send('import-reply', state);
+                    });
+                } else {
+                    formatdb(fileName, db, format, mappings)
+                        .then(formatted => {
+                            if (opts.db === 'Generic') {
+                                event.sender.send('import-reply', {
+                                    code: 0,
+                                    data: formatted,
+                                    err: ''
+                                });
+                            } else {
+                                const args = ['import', formatted];
+                                run(args, null, state => {
+                                    event.sender.send('import-reply', state);
+                                    fs.unlink(formatted);
+                                });
+                            }
+                        })
+                        .catch(err => {
+                            event.sender.send('import-reply', {
+                                code: 1,
+                                data: '',
+                                err: err.message
+                            });
+                        });
+                }
+            } else {
+                setImmediate(function() {
+                    event.sender.send('import-reply', {
+                        code: 1,
+                        data: '',
+                        err: 'No file chosen for import'
+                    });
+                });
+            }
+        });
+    }
 });
 
 ipcMain.on('store-set', function(event, data) {

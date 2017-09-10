@@ -63,7 +63,9 @@ class MainDialog extends PureComponent {
             leftLabel: '',
             rightLabel: '',
             onLeftLabel: null,
-            onRightLabel: null
+            onRightLabel: null,
+            choices: null,
+            choicesLabel: null
         });
     }
 
@@ -75,7 +77,6 @@ class MainDialog extends PureComponent {
                 <FlatButton
                     label={dialog.leftLabel}
                     key="dialogLeft"
-                    primary={true}
                     onTouchTap={this.handleDialogButton.bind(
                         this,
                         dialog.onLeftLabel

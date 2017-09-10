@@ -10,20 +10,21 @@ const sax = require('sax'),
 
 const convertedFilePath = path.join(userData, 'llave/conversion.file');
 
+const template = {
+    title: '',
+    url: '',
+    username: '',
+    passwords: [],
+    email: '',
+    tags: [],
+    notes: ''
+};
+
 const formatKeePassXML = function(input, resolve, reject) {
     const saxStream = sax.createStream(true),
         entries = [];
     let entry = undefined,
         prop = undefined;
-    const template = {
-        title: '',
-        url: '',
-        username: '',
-        passwords: [],
-        email: '',
-        tags: [],
-        notes: ''
-    };
     saxStream.on('error', function(err) {
         reject(err);
     });
@@ -87,15 +88,6 @@ const formatKeePassCSV = function(input, resolve, reject) {
         skip_empty_lines: true
     });
     const entries = [];
-    const template = {
-        title: '',
-        url: '',
-        username: '',
-        passwords: [],
-        email: '',
-        tags: [],
-        notes: ''
-    };
     parser.on('error', function(err) {
         reject(err);
     });
@@ -125,7 +117,67 @@ const formatKeePassCSV = function(input, resolve, reject) {
     input.pipe(parser);
 };
 
-const formatDatabase = function(path, db, format) {
+const formatGenericCSV = function(path, input, resolve, reject, mappings) {
+    const parser = csv.parse({
+        auto_parse: true,
+        escape: '\\',
+        skip_empty_lines: true
+    });
+    const rows = [];
+    const mapEntry = row => {
+        const entry = Object.assign({}, template);
+        Object.keys(mappings).forEach(prop => {
+            const mapped = mappings[prop];
+            if (typeof mapped === 'number' && mapped >= 0) {
+                const val = row[mapped];
+                if (prop === 'password') {
+                    entry.passwords = [val];
+                } else {
+                    entry[prop] = val;
+                }
+            }
+        });
+        return entry;
+    };
+    parser.on('error', function(err) {
+        reject(err);
+    });
+    parser.on('readable', function() {
+        let record;
+        while ((record = parser.read())) {
+            rows.push(record);
+        }
+    });
+    parser.on('finish', function() {
+        if (rows.length > 0) {
+            if (mappings) {
+                try {
+                    const entries = rows.slice(1).map(mapEntry),
+                        json = JSON.stringify(entries);
+                    fs.writeFile(convertedFilePath, json, function(err) {
+                        if (err) {
+                            reject(err);
+                        } else {
+                            resolve(convertedFilePath);
+                        }
+                    });
+                } catch (err) {
+                    reject(err);
+                }
+            } else {
+                resolve({
+                    path: path,
+                    rows: rows[0]
+                });
+            }
+        } else {
+            reject(new Error('Invalid CSV file'));
+        }
+    });
+    input.pipe(parser);
+};
+
+const formatDatabase = function(path, db, format, mappings) {
     const promise = new Promise((resolve, reject) => {
         const input = fs.createReadStream(path);
         input.on('error', function(err) {
@@ -142,6 +194,19 @@ const formatDatabase = function(path, db, format) {
                         break;
                     default:
                         reject(new Error('Invalid import format'));
+                }
+                break;
+            case 'Generic':
+                switch (format) {
+                    case 'CSV':
+                        formatGenericCSV(
+                            path,
+                            input,
+                            resolve,
+                            reject,
+                            mappings
+                        );
+                        break;
                 }
                 break;
             default:

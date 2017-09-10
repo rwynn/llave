@@ -1,6 +1,6 @@
 {
   "name": "llave",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "license": "MIT",
   "repository": "https://github.com/rwynn/llave",
   "description": "An Electron shell for the Ironclad password manager",
@@ -35,7 +35,7 @@
     "gulp-nsp": "^2.4.2",
     "gulp-rename": "^1.2.2",
     "gulp-template": "^4.0.0",
-    "material-ui": "^0.18.6",
+    "material-ui": "^0.18.7",
     "node-sass": "^3.4.2",
     "nsp": "^2.7.0",
     "prettier": "^1.5.3",

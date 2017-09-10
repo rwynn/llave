@@ -42,6 +42,7 @@ export class MainMenu extends PureComponent {
         this.exportDatabase = this.exportDatabase.bind(this);
         this.importDatabase = this.importDatabase.bind(this);
         this.doImport = this.doImport.bind(this);
+        this.doGenericImport = this.doGenericImport.bind(this);
         this.onMenu = this.onMenu.bind(this);
         this.onRequestMenu = this.onRequestMenu.bind(this);
         S.on('set.menu.main', this.onMenu);
@@ -89,7 +90,12 @@ export class MainMenu extends PureComponent {
         S.set('menu.main', false);
         S.send('dialog', {
             title: 'Import Database',
-            choices: ['Ironclad JSON', 'KeePass 1.X XML', 'KeePass 1.X CSV'],
+            choices: [
+                'Ironclad JSON',
+                'KeePass 1.X XML',
+                'KeePass 1.X CSV',
+                'Generic CSV'
+            ],
             choice: 'Ironclad JSON',
             choicesLabel: 'File Format',
             message: 'Select the file format to import',
@@ -97,6 +103,24 @@ export class MainMenu extends PureComponent {
             rightLabel: 'Choose File',
             onRightLabel: this.doImport,
             onLeftLabel: undefined
+        });
+    }
+
+    doGenericImport(path, mappings) {
+        const options = {
+            path: path,
+            mappings: mappings,
+            db: 'Generic',
+            format: 'CSV'
+        };
+        ipcRenderer.send('import', options);
+        ipcRenderer.once('import-reply', (ev, payload) => {
+            const { cmd, err, code } = payload;
+            const msg = code === 0 ? 'Entries imported' : err;
+            S.set('snack.message', msg);
+            if (code === 0) {
+                ipcRenderer.send('ironclad', ['dump']);
+            }
         });
     }
 
@@ -109,14 +133,34 @@ export class MainMenu extends PureComponent {
             case 'KeePass 1.X CSV':
                 options = { db: 'KeePass', format: 'CSV' };
                 break;
+            case 'Generic CSV':
+                options = { db: 'Generic', format: 'CSV' };
         }
         ipcRenderer.send('import', options);
         ipcRenderer.once('import-reply', (ev, payload) => {
             const { cmd, err, code } = payload;
-            const msg = code === 0 ? 'Entries imported' : err;
-            S.set('snack.message', msg);
-            if (code === 0) {
-                ipcRenderer.send('ironclad', ['dump']);
+            if (choice === 'Generic CSV') {
+                if (code === 0) {
+                    const { data } = payload,
+                        { rows, path } = data;
+                    S.send('dialog.mapper', {
+                        title: 'Map Columns',
+                        leftLabel: 'Cancel',
+                        rightLabel: 'Import',
+                        onRightLabel: this.doGenericImport,
+                        onLeftLabel: null,
+                        fields: rows,
+                        path: path
+                    });
+                } else {
+                    S.set('snack.message', err);
+                }
+            } else {
+                const msg = code === 0 ? 'Entries imported' : err;
+                S.set('snack.message', msg);
+                if (code === 0) {
+                    ipcRenderer.send('ironclad', ['dump']);
+                }
             }
         });
     }

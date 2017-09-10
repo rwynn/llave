@@ -13,6 +13,7 @@ import BottomNav from './BottomNav';
 import MainMenu from './MainMenu';
 import MainBar from './MainBar';
 import MainDialog from './MainDialog';
+import DataMapperDialog from './DataMapperDialog';
 import Add from './Add';
 import Details from './Details';
 import Edit from './Edit';
@@ -221,6 +222,7 @@ export class App extends PureComponent {
                         <Route component={MainMenu} />
                         <Route component={MainBar} />
                         <Route component={MainDialog} />
+                        <Route component={DataMapperDialog} />
                         <div id="content">
                             <Route exact path="/" component={Database} />
                             <Route exact path="/entries" component={Entries} />

@@ -1,6 +1,6 @@
 {
   "name": "llave",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "dependencies": {
     "abbrev": {
       "version": "1.1.0",
@@ -803,9 +803,9 @@
       "dev": true
     },
     "bowser": {
-      "version": "1.7.1",
+      "version": "1.7.3",
       "from": "bowser@>=1.6.0 <2.0.0",
-      "resolved": "https://registry.npmjs.org/bowser/-/bowser-1.7.1.tgz",
+      "resolved": "https://registry.npmjs.org/bowser/-/bowser-1.7.3.tgz",
       "dev": true
     },
     "brace-expansion": {
@@ -4260,9 +4260,9 @@
       "dev": true
     },
     "inline-style-prefixer": {
-      "version": "3.0.6",
+      "version": "3.0.7",
       "from": "inline-style-prefixer@>=3.0.2 <4.0.0",
-      "resolved": "https://registry.npmjs.org/inline-style-prefixer/-/inline-style-prefixer-3.0.6.tgz",
+      "resolved": "https://registry.npmjs.org/inline-style-prefixer/-/inline-style-prefixer-3.0.7.tgz",
       "dev": true
     },
     "interpret": {
