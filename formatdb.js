@@ -207,6 +207,8 @@ const formatDatabase = function(path, db, format, mappings) {
                             mappings
                         );
                         break;
+                    default:
+                        reject(new Error('Invalid import format'));
                 }
                 break;
             default:
