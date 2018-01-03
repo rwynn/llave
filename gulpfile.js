@@ -88,7 +88,7 @@ gulp.task('integrity', function() {
     return gulp.src(paths.integrity).pipe(buildIntegrity());
 });
 
-gulp.task('main', ['nsp', 'clean'], function() {
+gulp.task('main', ['nsp', 'clean', 'chmod'], function() {
     return gulp
         .src(paths.main, { base: '.' })
         .pipe(rename(maybeRename))
