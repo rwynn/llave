@@ -398,22 +398,22 @@ export class Settings extends PureComponent {
 
     render() {
         const { autoLock } = this;
-        const timeout = autoLock.enabled
-            ? <div>
-                  <Subheader style={this.subheaderStyle}>
-                      Inactivity Timeout ({autoLock.timeout}{' '}
-                      {autoLock.timeout === 1 ? 'minute' : 'minutes'})
-                  </Subheader>
-                  <Slider
-                      onChange={this.onIdleTimeout}
-                      sliderStyle={this.sliderStyle}
-                      min={1}
-                      max={30}
-                      step={1}
-                      value={autoLock.timeout}
-                  />
-              </div>
-            : null;
+        const timeout = autoLock.enabled ? (
+            <div>
+                <Subheader style={this.subheaderStyle}>
+                    Inactivity Timeout ({autoLock.timeout}{' '}
+                    {autoLock.timeout === 1 ? 'minute' : 'minutes'})
+                </Subheader>
+                <Slider
+                    onChange={this.onIdleTimeout}
+                    sliderStyle={this.sliderStyle}
+                    min={1}
+                    max={30}
+                    step={1}
+                    value={autoLock.timeout}
+                />
+            </div>
+        ) : null;
 
         return (
             <div>

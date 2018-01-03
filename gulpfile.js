@@ -2,6 +2,7 @@ const gulp = require('gulp'),
     rename = require('gulp-rename'),
     template = require('gulp-template'),
     filter = require('gulp-filter'),
+    chmod = require('gulp-chmod'),
     crypto = require('crypto'),
     fs = require('fs'),
     path = require('path'),
@@ -32,13 +33,14 @@ const buildIntegrity = function() {
 };
 
 const paths = {
+    exe: ['go/ironclad/**/ironclad*'],
     main: [
         'package.prod.json',
         'npm-shrinkwrap.json',
         'main.js',
         'ipc.js',
         'formatdb.js',
-        'go/**/ironclad*'
+        'go/ironclad/**/ironclad*'
     ],
     render: ['dist/bundle.js', 'dist/index.prod.html'],
     web: [
@@ -128,6 +130,13 @@ gulp.task('cordova', ['nsp', 'clean', 'integrity'], function() {
 
 gulp.task('postclean', function() {
     return del(['build/app/etc']);
+});
+
+gulp.task('chmod', function() {
+    return gulp
+        .src(paths.exe)
+        .pipe(chmod(0755))
+        .pipe(gulp.dest('go/ironclad'));
 });
 
 gulp.task('buildapp', ['main', 'render', 'web', 'cordova']);

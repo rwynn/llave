@@ -390,21 +390,25 @@ export class EntriesList extends PureComponent {
         const notFoundMsg =
             this.state.filter === 0 ? 'No entries found' : 'No favorites found';
 
-        const placeholder = this.initComplete
-            ? <NotFound message={notFoundMsg} />
-            : <div />;
+        const placeholder = this.initComplete ? (
+            <NotFound message={notFoundMsg} />
+        ) : (
+            <div />
+        );
 
         const content =
-            entries.length === 0
-                ? placeholder
-                : <List>
-                      <Infinite
-                          useWindowAsScrollContainer
-                          containerHeight={80 * 10}
-                          elementHeight={80}>
-                          {entries}
-                      </Infinite>
-                  </List>;
+            entries.length === 0 ? (
+                placeholder
+            ) : (
+                <List>
+                    <Infinite
+                        useWindowAsScrollContainer
+                        containerHeight={80 * 10}
+                        elementHeight={80}>
+                        {entries}
+                    </Infinite>
+                </List>
+            );
 
         return (
             <div>

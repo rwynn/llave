@@ -1,12 +1,13 @@
 {
   "name": "llave",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "license": "MIT",
   "repository": "https://github.com/rwynn/llave",
   "description": "An Electron shell for the Ironclad password manager",
   "main": "main.js",
   "scripts": {
     "start": "electron main.js",
+    "chmod": "gulp chmod",
     "clean": "gulp clean",
     "check": "nsp check --output json",
     "pack": "webpack -p --config webpack.config.js",
@@ -30,6 +31,7 @@
     "electron-prebuilt": "^1.4.13",
     "express": "^4.13.4",
     "gulp": "^3.9.1",
+    "gulp-chmod": "^2.0.0",
     "gulp-cli": "^1.3.0",
     "gulp-filter": "^5.0.1",
     "gulp-nsp": "^2.4.2",

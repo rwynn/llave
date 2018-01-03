@@ -95,6 +95,8 @@ without creating a full blown mobile app with Cordova then you can do the follow
 
 * Run `npm install` from the root llave folder.
 
+* Run `npm run chmod` to ensure the ironclad binaries are executable.
+
 * Run `node server.js` to start Webpack.
 
 * In another terminal window run `npm start` to start Electron.

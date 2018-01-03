@@ -214,11 +214,7 @@ export class Details extends PureComponent {
     makeTextField(prop) {
         const val = this.state[prop];
         const label = prop.charAt(0).toUpperCase() + prop.substring(1);
-        const children = (
-            <pre style={{ fontFamily: 'inherit' }}>
-                {val}
-            </pre>
-        );
+        const children = <pre style={{ fontFamily: 'inherit' }}>{val}</pre>;
         return (
             <ListItem
                 style={{ cursor: 'copy' }}

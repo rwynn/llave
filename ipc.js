@@ -34,12 +34,17 @@ let masterKey, clipTimeout, index;
 
 const settingsSchema = Joi.object().keys({
     passwords: Joi.object().keys({
-        len: Joi.number().integer().min(8).max(100),
+        len: Joi.number()
+            .integer()
+            .min(8)
+            .max(100),
         flags: Joi.string().regex(/^[dlsu]{0,4}$/)
     }),
     autoLock: Joi.object().keys({
         enabled: Joi.boolean(),
-        timeout: Joi.number().integer().min(1)
+        timeout: Joi.number()
+            .integer()
+            .min(1)
     }),
     theme: Joi.object().keys({
         dark: Joi.boolean()
