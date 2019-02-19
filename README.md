@@ -3,7 +3,7 @@
 llave provides [Electron](https://electron.atom.io/) and [Cordova](https://cordova.apache.org/) 
 based UIs for the [Ironclad](https://github.com/dmulholland/ironclad) password manager.
 
-<img src="https://raw.github.com/rwynn/llave/master/screens/entries.png"/>
+<img src="https://raw.githubusercontent.com/rwynn/llave/master/screens/entries.png"/>
 
 ## llave design
 
