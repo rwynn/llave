@@ -29,7 +29,7 @@ You can install llave for the desktop using the following procedure:
 
 * Download and extract the latest llave `llave.zip` file from the [llave Releases](https://github.com/rwynn/llave/releases) page.
 
-* Download and extract the latest Electron release for your platform from the [Electron Release](https://github.com/electron/electron/releases) page.
+* Download and extract the Electron 3.1.4 release for your platform from the [Electron 3.1.4 Release](https://github.com/electron/electron/releases/tag/v3.1.4) page.
 
 * Copy both the llave `app.esar` file and `app.esar.unpacked` folder from `llave.zip` to the following location:
 
