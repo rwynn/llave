@@ -211,16 +211,13 @@ export class Add extends PureComponent {
 
     submitOk() {
         const entry = this.entry;
-        return entry.title !== '' && entry.url !== '';
+        return entry.title !== '';
     }
 
     firstInvalid() {
         const entry = this.entry,
-            { title, url } = this.refs;
-        if (entry.title === '') {
-            return title;
-        }
-        return url;
+            { title } = this.refs;
+        return title;
     }
 
     handlePress(ev) {
