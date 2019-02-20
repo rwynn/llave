@@ -18,42 +18,42 @@ const indexDocs = function() {
         this.field('username');
         this.field('email');
         this.field('notes');
-        data
-            .map(d => {
-                const indexed = Object.assign({}, d);
-                indexed.active = null;
-                indexed.passwords = null;
-                return indexed;
-            })
-            .forEach(this.add, this);
+        data.map(d => {
+            const indexed = Object.assign({}, d);
+            indexed.active = null;
+            indexed.passwords = null;
+            return indexed;
+        }).forEach(this.add, this);
     });
 };
 
 const queryBuilder = function(terms, query) {
     const termParts = terms.toLowerCase().split(' ');
-    termParts.filter(term => !!term).forEach(term => {
-        const wildcard =
-            term.length > 1
-                ? lunr.Query.wildcard.LEADING | lunr.Query.wildcard.TRAILING
-                : lunr.Query.wildcard.TRAILING;
-        query.clause({
-            term: term,
-            boost: 1,
-            usePipeline: false,
-            wildcard: wildcard
+    termParts
+        .filter(term => !!term)
+        .forEach(term => {
+            const wildcard =
+                term.length > 1
+                    ? lunr.Query.wildcard.LEADING | lunr.Query.wildcard.TRAILING
+                    : lunr.Query.wildcard.TRAILING;
+            query.clause({
+                term: term,
+                boost: 1,
+                usePipeline: false,
+                wildcard: wildcard
+            });
+            query.clause({
+                term: term,
+                boost: 5,
+                usePipeline: false
+            });
+            query.clause({
+                fields: ['title'],
+                term: term,
+                boost: 10,
+                usePipeline: false
+            });
         });
-        query.clause({
-            term: term,
-            boost: 5,
-            usePipeline: false
-        });
-        query.clause({
-            fields: ['title'],
-            term: term,
-            boost: 10,
-            usePipeline: false
-        });
-    });
     return query;
 };
 

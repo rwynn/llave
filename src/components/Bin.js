@@ -72,14 +72,17 @@ class Bin extends PureComponent {
     }
 
     purgeDatabase() {
-        ipcRenderer.send('ironclad', ['purge']);
+        ipcRenderer.send('ironclad', ['purge'], { input: ['y'] });
         ipcRenderer.once('ironclad-reply', (ev, payload) => {
             const cmd = payload.cmd,
+                err = payload.err,
                 code = payload.code;
             if (cmd === 'purge') {
                 const msg =
                     code === 0
                         ? 'Deleted entries have been purged'
+                        : err
+                        ? err
                         : 'Failed to purge deleted entries';
                 S.set('menu.main', false);
                 S.set('snack.message', msg);

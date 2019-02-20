@@ -399,7 +399,8 @@ export class Details extends PureComponent {
                     message={this.state.snackMessage}
                     autoHideDuration={1200}
                     onRequestClose={reason =>
-                        this.setState({ snackOpen: false })}
+                        this.setState({ snackOpen: false })
+                    }
                 />
             </div>
         );

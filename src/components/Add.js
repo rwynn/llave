@@ -249,7 +249,9 @@ export class Add extends PureComponent {
             type =
                 !showPassword && prop === 'password'
                     ? 'password'
-                    : prop === 'email' ? 'email' : 'text';
+                    : prop === 'email'
+                    ? 'email'
+                    : 'text';
         let errorText = null;
         if (showErrors && required && value === '') {
             errorText = `${label} is required`;
@@ -347,7 +349,7 @@ export class Add extends PureComponent {
                         <CardText style={this.cardTextStyle} expandable={false}>
                             {this.makeField('title', true)}
                             <br />
-                            {this.makeField('url', true)}
+                            {this.makeField('url')}
                             <br />
                             {this.makeField('username')}
                             <br />

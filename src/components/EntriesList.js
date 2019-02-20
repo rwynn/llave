@@ -311,17 +311,20 @@ export class EntriesList extends PureComponent {
             this.letters.has = true;
             this.letters.seen[l] = true;
         }
-        const secondaryText = (
-            <div
-                style={{
-                    padding: '4px 0px',
-                    display: 'flex',
-                    'align-items': 'center'
-                }}>
-                <Favicon url={e.url} style={{ marginRight: '8px' }} />
-                {e.url}
-            </div>
-        );
+        let secondaryText = null;
+        if (e.url) {
+            secondaryText = (
+                <div
+                    style={{
+                        padding: '4px 0px',
+                        display: 'flex',
+                        'align-items': 'center'
+                    }}>
+                    <Favicon url={e.url} style={{ marginRight: '8px' }} />
+                    {e.url}
+                </div>
+            );
+        }
         return (
             <div key={key}>
                 {divider}
@@ -418,7 +421,8 @@ export class EntriesList extends PureComponent {
                     message={this.state.snackMessage}
                     autoHideDuration={1200}
                     onRequestClose={reason =>
-                        this.setState({ snackOpen: false })}
+                        this.setState({ snackOpen: false })
+                    }
                 />
             </div>
         );
