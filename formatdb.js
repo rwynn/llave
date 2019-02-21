@@ -8,7 +8,7 @@ const sax = require('sax'),
     fs = require('fs'),
     path = require('path');
 
-const convertedFilePath = path.join(userData, 'llave/conversion.file');
+const convertedFilePath = path.join(userData, 'conversion.file');
 
 const template = {
     title: '',

@@ -336,7 +336,14 @@ ipcMain.on('import', function(event, options) {
                 const args = ['import', formatted];
                 run(args, null, state => {
                     event.sender.send('import-reply', state);
-                    fs.unlink(formatted);
+                    fs.unlink(formatted, err => {
+                        if (err) {
+                            dialog.showErrorBox(
+                                'Import Error',
+                                `Unable to remove sensitive temp file from ${formatted}: ${err}`
+                            );
+                        }
+                    });
                 });
             })
             .catch(err => {
@@ -368,7 +375,14 @@ ipcMain.on('import', function(event, options) {
                                 const args = ['import', formatted];
                                 run(args, null, state => {
                                     event.sender.send('import-reply', state);
-                                    fs.unlink(formatted);
+                                    fs.unlink(formatted, err => {
+                                        if (err) {
+                                            dialog.showErrorBox(
+                                                'Import Error',
+                                                `Unable to remove sensitive temp file from ${formatted}: ${err}`
+                                            );
+                                        }
+                                    });
                                 });
                             }
                         })
