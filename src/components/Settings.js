@@ -65,6 +65,11 @@ export class Settings extends PureComponent {
         flags: 'dlsu'
     };
 
+    defaultClipboard = {
+        autoClear: true,
+        timeout: 10
+    };
+
     defaultAutoLock = {
         enabled: true,
         timeout: 5
@@ -125,6 +130,11 @@ export class Settings extends PureComponent {
             this.defaultAutoLock,
             S.get('settings.autolock', this.defaultAutoLock)
         );
+        this.clipboard = Object.assign(
+            {},
+            this.defaultClipboard,
+            S.get('settings.clipboard', this.defaultClipboard)
+        );
         this.theme = Object.assign(
             {},
             this.defaultTheme,
@@ -133,10 +143,12 @@ export class Settings extends PureComponent {
         this.initialSettings = {
             passwords: Object.assign({}, this.passwords),
             autoLock: Object.assign({}, this.autoLock),
+            clipboard: Object.assign({}, this.clipboard),
             theme: Object.assign({}, this.theme)
         };
         this.sliderChange = this.sliderChange.bind(this);
         this.onIdleTimeout = this.onIdleTimeout.bind(this);
+        this.onClipboardTimeout = this.onClipboardTimeout.bind(this);
         this.onGen = this.onGen.bind(this);
         this.onStorageGet = this.onStorageGet.bind(this);
         this.onStorageSet = this.onStorageSet.bind(this);
@@ -145,6 +157,7 @@ export class Settings extends PureComponent {
         this.confirmClose = this.confirmClose.bind(this);
         this.handleMenu = this.handleMenu.bind(this);
         this.toggleAutolock = this.toggleAutolock.bind(this);
+        this.toggleClipboardClear = this.toggleClipboardClear.bind(this);
         this.toggleDarkTheme = this.toggleDarkTheme.bind(this);
     }
 
@@ -175,7 +188,7 @@ export class Settings extends PureComponent {
     onStorageGet(e, reply) {
         const { code, err, data } = reply;
         if (code === 0) {
-            const { passwords, autoLock, theme } = data;
+            const { passwords, autoLock, theme, clipboard } = data;
             if (passwords) {
                 this.passwords = Object.assign(
                     {},
@@ -196,9 +209,18 @@ export class Settings extends PureComponent {
                 this.theme = Object.assign({}, this.defaultTheme, theme);
                 S.set('settings.theme', this.theme, true);
             }
+            if (clipboard) {
+                this.clipboard = Object.assign(
+                    {},
+                    this.defaultClipboard,
+                    clipboard
+                );
+                S.set('settings.clipboard', this.clipboard);
+            }
             this.initialSettings = {
                 passwords: Object.assign({}, this.passwords),
                 autoLock: Object.assign({}, this.autoLock),
+                clipboard: Object.assign({}, this.clipboard),
                 theme: Object.assign({}, this.theme)
             };
         }
@@ -208,9 +230,10 @@ export class Settings extends PureComponent {
     onStorageSet(e, reply) {
         const { code, err, data } = reply;
         if (code === 0) {
-            const { passwords, autoLock, theme } = data;
+            const { passwords, autoLock, theme, clipboard } = data;
             S.set('settings.passwords', passwords);
             S.set('settings.autolock', autoLock);
+            S.set('settings.clipboard', clipboard);
             S.set('settings.theme', theme, true);
             this.handleClose();
             S.set('snack.message', 'Settings saved');
@@ -228,6 +251,13 @@ export class Settings extends PureComponent {
         this.autoLock.timeout = timeout;
         this.setState({
             autoLockTimeout: timeout
+        });
+    }
+
+    onClipboardTimeout(e, timeout) {
+        this.clipboard.timeout = timeout;
+        this.setState({
+            clipboardTimeout: timeout
         });
     }
 
@@ -290,9 +320,24 @@ export class Settings extends PureComponent {
         });
     }
 
+    toggleClipboardClear(e, on) {
+        const { clipboard } = this;
+        clipboard.autoClear = on;
+        this.setState({
+            clipboardClear: on
+        });
+    }
+
     autoLockToggle() {
         const { enabled } = this.autoLock;
         return <Toggle onToggle={this.toggleAutolock} toggled={enabled} />;
+    }
+
+    clipboardToggle() {
+        const { autoClear } = this.clipboard;
+        return (
+            <Toggle onToggle={this.toggleClipboardClear} toggled={autoClear} />
+        );
     }
 
     handleClose() {
@@ -306,6 +351,7 @@ export class Settings extends PureComponent {
             settings = JSON.stringify({
                 passwords: this.passwords,
                 autoLock: this.autoLock,
+                clipboard: this.clipboard,
                 theme: this.theme
             });
         if (initial !== settings) {
@@ -343,7 +389,8 @@ export class Settings extends PureComponent {
         ipcRenderer.send('store-set', {
             passwords: this.passwords,
             autoLock: this.autoLock,
-            theme: this.theme
+            theme: this.theme,
+            clipboard: this.clipboard
         });
     }
 
@@ -397,7 +444,7 @@ export class Settings extends PureComponent {
     }
 
     render() {
-        const { autoLock } = this;
+        const { autoLock, clipboard } = this;
         const timeout = autoLock.enabled ? (
             <div>
                 <Subheader style={this.subheaderStyle}>
@@ -414,7 +461,22 @@ export class Settings extends PureComponent {
                 />
             </div>
         ) : null;
-
+        const cbTimeout = clipboard.autoClear ? (
+            <div>
+                <Subheader style={this.subheaderStyle}>
+                    Clipboard Timeout ({clipboard.timeout}{' '}
+                    {clipboard.timeout === 1 ? 'second' : 'seconds'})
+                </Subheader>
+                <Slider
+                    onChange={this.onClipboardTimeout}
+                    sliderStyle={this.sliderStyle}
+                    min={1}
+                    max={60}
+                    step={1}
+                    value={clipboard.timeout}
+                />
+            </div>
+        ) : null;
         return (
             <div>
                 <AppBar
@@ -470,6 +532,27 @@ export class Settings extends PureComponent {
                                     rightToggle={this.autoLockToggle()}
                                 />
                                 {timeout}
+                            </List>
+                        </CardText>
+                    </Card>
+                    <br />
+                    <Card initiallyExpanded={true}>
+                        <CardHeader
+                            avatar={timerIcon}
+                            title="Clipboard Settings"
+                            style={this.cardHeaderStyle}
+                            subtitle="The clipboard will be cleared according to the settings below"
+                            actAsExpander={false}
+                            showExpandableButton={false}
+                        />
+                        <CardText style={this.cardTextStyle} expandable={false}>
+                            <List>
+                                <ListItem
+                                    primaryText="Auto Clear"
+                                    secondaryText="Clear the clipboard after a timeout. Check your clipboard manager to ensure emptying is allowed."
+                                    rightToggle={this.clipboardToggle()}
+                                />
+                                {cbTimeout}
                             </List>
                         </CardText>
                     </Card>

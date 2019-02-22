@@ -30,7 +30,7 @@ const ironcladBinary = path.join(
     ironcladPlatformBinary[process.platform]
 );
 
-let masterKey, clipTimeout, index;
+let masterKey, clipTimeout, index, cachedSettings;
 
 const settingsSchema = Joi.object().keys({
     passwords: Joi.object().keys({
@@ -39,6 +39,12 @@ const settingsSchema = Joi.object().keys({
             .min(8)
             .max(100),
         flags: Joi.string().regex(/^[dlsu]{0,4}$/)
+    }),
+    clipboard: Joi.object().keys({
+        autoClear: Joi.boolean(),
+        timeout: Joi.number()
+            .integer()
+            .min(1)
     }),
     autoLock: Joi.object().keys({
         enabled: Joi.boolean(),
@@ -143,15 +149,39 @@ const useReviver = function({ cmd }) {
     return maskSensitive.indexOf(cmd) !== -1;
 };
 
+const doClipboardTimeout = function(lookup) {
+    let timeout = 10,
+        autoClear = true;
+    if (cachedSettings && cachedSettings.clipboard) {
+        const cbs = cachedSettings.clipboard;
+        if (cbs.timeout !== undefined) {
+            timeout = cbs.timeout;
+        }
+        if (cbs.autoClear !== undefined) {
+            autoClear = cbs.autoClear;
+        }
+    } else if (lookup) {
+        return storage.get((err, data) => {
+            if (!err && data) {
+                cachedSettings = data;
+            }
+            doClipboardTimeout(false);
+        });
+    }
+    if (autoClear) {
+        clipTimeout = setTimeout(function() {
+            clipboard.clear();
+            clipTimeout = null;
+        }, timeout * 1000);
+    }
+};
+
 const doClipboard = function(data) {
     if (clipTimeout) {
         clearTimeout(clipTimeout);
     }
     clipboard.writeText(data);
-    clipTimeout = setTimeout(function() {
-        clipboard.clear();
-        clipTimeout = null;
-    }, 10000);
+    doClipboardTimeout(true);
 };
 
 const run = function(args, options, cb) {
@@ -427,6 +457,9 @@ ipcMain.on('store-set', function(event, data) {
                 setImmediate(function() {
                     event.sender.send('store-set-reply', resp);
                 });
+                if (!err) {
+                    cachedSettings = data;
+                }
             });
         }
     });
@@ -442,6 +475,9 @@ ipcMain.on('store-get', function(event) {
         setImmediate(function() {
             event.sender.send('store-get-reply', resp);
         });
+        if (!err) {
+            cachedSettings = data;
+        }
     });
 });
 

@@ -204,14 +204,18 @@ export class MainMenu extends PureComponent {
     }
 
     respond(e, payload) {
-        const cmd = payload.cmd;
+        const { cmd, code, err } = payload;
         if (cmd === 'setpass') {
-            const code = payload.code;
             if (code === 0) {
                 S.set('snack.message', 'Password successfully changed');
                 this.switchDatabase();
             } else {
-                S.set('snack.message', 'Failed to change password');
+                S.set(
+                    'snack.message',
+                    err
+                        ? `Failed to change password: ${err}`
+                        : 'Failed to change password'
+                );
             }
         }
     }
