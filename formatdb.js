@@ -20,6 +20,91 @@ const template = {
     notes: ''
 };
 
+const formatKeePass_X_XML = function(input, resolve, reject) {
+    const saxStream = sax.createStream(true),
+        tags = [],
+        entries = [];
+    let entry = undefined,
+        prop = undefined,
+        inTag = false,
+        inTitle = false;
+    saxStream.on('error', function(err) {
+        reject(err);
+    });
+    saxStream.on('text', function(text) {
+        if (inTag && inTitle) {
+            tags.push(text);
+        } else if (entry !== undefined && prop !== undefined) {
+            if (prop === 'password') {
+                entry.passwords = [text];
+            } else if (prop === 'comment') {
+                entry.notes = text;
+            } else {
+                entry[prop] = text;
+            }
+        }
+    });
+    saxStream.on('opentag', function(node) {
+        const name = node.name;
+        if (inTag && name === 'title') {
+            inTitle = true;
+            return;
+        }
+        switch (name) {
+            case 'group':
+                inTag = true;
+                break;
+            case 'entry':
+                inTag = false;
+                entry = Object.assign({}, template);
+                break;
+            case 'title':
+            case 'username':
+            case 'url':
+            case 'comment':
+            case 'password':
+                if (entry !== undefined) {
+                    prop = name;
+                }
+                break;
+        }
+    });
+    saxStream.on('closetag', function(name) {
+        switch (name) {
+            case 'group':
+                inTag = false;
+                tags.pop();
+                break;
+            case 'title':
+                inTitle = false;
+                break;
+            case 'entry':
+                if (tags.length > 0) {
+                    entry.tags = [...tags];
+                }
+                entries.push(entry);
+                entry = undefined;
+                break;
+        }
+        prop = undefined;
+    });
+    saxStream.on('end', function() {
+        try {
+            const json = JSON.stringify(entries);
+            fs.writeFile(convertedFilePath, json, function(err) {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(convertedFilePath);
+                }
+            });
+        } catch (err) {
+            reject(err);
+        }
+    });
+    input.pipe(saxStream);
+};
+
 const formatKeePassXML = function(input, resolve, reject) {
     const saxStream = sax.createStream(true),
         tagParents = {},
@@ -34,7 +119,7 @@ const formatKeePassXML = function(input, resolve, reject) {
     saxStream.on('text', function(text) {
         if (inTag) {
             entry.tags = [text];
-            if (tagParent != undefined) {
+            if (tagParent) {
                 tagParents[text] = tagParent;
             }
         } else if (entry !== undefined && prop !== undefined) {
@@ -50,6 +135,7 @@ const formatKeePassXML = function(input, resolve, reject) {
         switch (name) {
             case 'group':
                 inTag = true;
+                tagParent = node.attributes.tree;
                 break;
             case 'pwentry':
                 entry = Object.assign({}, template);
@@ -77,11 +163,6 @@ const formatKeePassXML = function(input, resolve, reject) {
                 break;
         }
         prop = undefined;
-    });
-    saxStream.on('attribute', function(attr) {
-        if (attr.name === 'tree') {
-            tagParent = attr.value;
-        }
     });
     saxStream.on('end', function() {
         try {
@@ -221,6 +302,15 @@ const formatDatabase = function(path, db, format, mappings) {
                         break;
                     case 'CSV':
                         formatKeePassCSV(input, resolve, reject);
+                        break;
+                    default:
+                        reject(new Error('Invalid import format'));
+                }
+                break;
+            case 'KeePassX':
+                switch (format) {
+                    case 'XML':
+                        formatKeePass_X_XML(input, resolve, reject);
                         break;
                     default:
                         reject(new Error('Invalid import format'));

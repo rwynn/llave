@@ -41,6 +41,16 @@ class ChangePassDialog extends PureComponent {
                 dialogOpen: false
             });
         }
+        setTimeout(
+            function() {
+                const { pass1 } = this.refs;
+                if (pass1) {
+                    const { input } = pass1;
+                    input.focus();
+                }
+            }.bind(this),
+            200
+        );
     }
 
     handleChange(ev) {

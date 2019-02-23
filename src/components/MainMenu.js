@@ -103,6 +103,7 @@ export class MainMenu extends PureComponent {
             choices: [
                 'Ironclad JSON',
                 'KeePass 1.X XML',
+                'KeePassX XML',
                 'KeePass 1.X CSV',
                 'Generic CSV'
             ],
@@ -139,6 +140,9 @@ export class MainMenu extends PureComponent {
         switch (choice) {
             case 'KeePass 1.X XML':
                 options = { db: 'KeePass', format: 'XML' };
+                break;
+            case 'KeePassX XML':
+                options = { db: 'KeePassX', format: 'XML' };
                 break;
             case 'KeePass 1.X CSV':
                 options = { db: 'KeePass', format: 'CSV' };
