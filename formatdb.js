@@ -22,14 +22,22 @@ const template = {
 
 const formatKeePassXML = function(input, resolve, reject) {
     const saxStream = sax.createStream(true),
+        tagParents = {},
         entries = [];
     let entry = undefined,
-        prop = undefined;
+        prop = undefined,
+        tagParent = undefined,
+        inTag = false;
     saxStream.on('error', function(err) {
         reject(err);
     });
     saxStream.on('text', function(text) {
-        if (entry !== undefined && prop !== undefined) {
+        if (inTag) {
+            entry.tags = [text];
+            if (tagParent != undefined) {
+                tagParents[text] = tagParent;
+            }
+        } else if (entry !== undefined && prop !== undefined) {
             if (prop === 'password') {
                 entry.passwords = [text];
             } else {
@@ -40,6 +48,9 @@ const formatKeePassXML = function(input, resolve, reject) {
     saxStream.on('opentag', function(node) {
         const name = node.name;
         switch (name) {
+            case 'group':
+                inTag = true;
+                break;
             case 'pwentry':
                 entry = Object.assign({}, template);
                 break;
@@ -56,6 +67,10 @@ const formatKeePassXML = function(input, resolve, reject) {
     });
     saxStream.on('closetag', function(name) {
         switch (name) {
+            case 'group':
+                inTag = false;
+                tagParent = undefined;
+                break;
             case 'pwentry':
                 entries.push(entry);
                 entry = undefined;
@@ -63,9 +78,24 @@ const formatKeePassXML = function(input, resolve, reject) {
         }
         prop = undefined;
     });
+    saxStream.on('attribute', function(attr) {
+        if (attr.name === 'tree') {
+            tagParent = attr.value;
+        }
+    });
     saxStream.on('end', function() {
         try {
-            const json = JSON.stringify(entries);
+            const es = entries.map(function(e) {
+                if (e.tags && e.tags.length === 1) {
+                    let tag = e.tags[0];
+                    while (tagParents[tag]) {
+                        tag = tagParents[tag];
+                        e.tags.push(tag);
+                    }
+                }
+                return e;
+            });
+            const json = JSON.stringify(es);
             fs.writeFile(convertedFilePath, json, function(err) {
                 if (err) {
                     reject(err);
