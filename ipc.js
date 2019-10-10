@@ -1,12 +1,8 @@
 'use strict';
 
-const electron = require('electron'),
-    { app } = electron,
-    { ipcMain } = electron,
+const { app, ipcMain, clipboard, dialog } = require('electron'),
     toml = require('toml'),
     Readable = require('stream').Readable,
-    { clipboard } = electron,
-    { dialog } = electron,
     lunr = require('lunr'),
     storage = require('electron-storage'),
     yaStorage = require('ya-storage'),
@@ -343,15 +339,25 @@ ipcMain.on('export', function(event) {
             });
         });
     };
-    dialog.showSaveDialog(function(fileName) {
-        if (fileName !== undefined) {
+    dialog
+        .showSaveDialog()
+        .then(result => {
+            if (result.canceled) {
+                onEmpty();
+                return;
+            }
+            const fileName = result.filePath;
             const cb = onExport.bind(this, fileName),
                 args = ['export'];
             run(args, null, cb);
-        } else {
-            onEmpty();
-        }
-    });
+        })
+        .catch(err => {
+            event.sender.send('export-reply', {
+                code: 1,
+                data: '',
+                err: err.message
+            });
+        });
 });
 
 ipcMain.on('import', function(event, options) {
@@ -384,8 +390,15 @@ ipcMain.on('import', function(event, options) {
                 });
             });
     } else {
-        dialog.showOpenDialog(function(files) {
-            if (files !== undefined) {
+        dialog
+            .showOpenDialog({
+                properties: ['openFile']
+            })
+            .then(result => {
+                if (result.canceled) {
+                    return;
+                }
+                const files = result.filePaths;
                 const fileName = files[0];
                 if (db === 'Ironclad') {
                     const args = ['import', fileName];
@@ -424,16 +437,14 @@ ipcMain.on('import', function(event, options) {
                             });
                         });
                 }
-            } else {
-                setImmediate(function() {
-                    event.sender.send('import-reply', {
-                        code: 1,
-                        data: '',
-                        err: 'No file chosen for import'
-                    });
+            })
+            .catch(err => {
+                event.sender.send('import-reply', {
+                    code: 1,
+                    data: '',
+                    err: err.message
                 });
-            }
-        });
+            });
     }
 });
 
