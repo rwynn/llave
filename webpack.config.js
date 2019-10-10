@@ -8,13 +8,13 @@ module.exports = {
         'worker.web': './src/worker.web'
     },
     module: {
-        loaders: [
-            { test: /\.js?$/, loader: 'babel', exclude: /node_modules/ },
-            { test: /\.s?css$/, loader: 'style!css!sass' }
+        rules: [
+            { test: /\.js?$/, use: 'babel-loader', exclude: /node_modules/ },
+            { test: /\.s?css$/, loader: 'style-loader!css-loader!sass-loader' }
         ]
     },
     resolve: {
-        extensions: ['', '.js']
+        extensions: ['*', '.js']
     },
     output: {
         path: path.join(__dirname, '/dist'),
@@ -26,9 +26,8 @@ module.exports = {
         hot: true
     },
     plugins: [
-        new webpack.optimize.OccurenceOrderPlugin(),
         new webpack.HotModuleReplacementPlugin(),
-        new webpack.NoErrorsPlugin(),
+        new webpack.NoEmitOnErrorsPlugin(),
         // enable prod
         new webpack.DefinePlugin({
             'process.env': {
